@@ -1,6 +1,6 @@
 // Base player model for Skater or Goalie using MongoDB discriminators
 const mongoose = require('mongoose');
-const options = { discriminatorKey: 'positionType', collection: 'players' };
+const options = { discriminatorKey: 'position', collection: 'players' };
 
 const playerSchema = new mongoose.Schema({
   name: { type: String, required: true },
