@@ -9,6 +9,7 @@ const path = require('path');
 const multer = require('multer');
 const session = require('express-session');
 const { GridFsStorage } = require('multer-gridfs-storage');
+const passport = require('passport');
 
 const globals = require('./configs/globals');
 const playerRouter = require('./routes/players');
@@ -23,21 +24,38 @@ const {
   logout
 } = require('./middleware/authMiddleware');
 
+// Load Admin model with passport-local-mongoose
+const Admin = require('./models/admin'); // Make sure you create this model
+
 dotenv.config();
 
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // frontend origin
+  credentials: true // allow cookies/sessions
+}));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
+
+// Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'supersecret',
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: { secure: false } // Set to true if using HTTPS
 }));
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Passport-local-mongoose strategy
+passport.use(Admin.createStrategy());
+passport.serializeUser(Admin.serializeUser());
+passport.deserializeUser(Admin.deserializeUser());
 
 // MongoDB connection
 mongoose.connect(globals.ConnectionString.MongoDB)
