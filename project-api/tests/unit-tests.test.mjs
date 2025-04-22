@@ -6,8 +6,8 @@ const expect = chai.expect;
 
 // 👇 hardcoded credentials for login (matches Admin model)
 const adminCredentials = {
-  email: 'StefanSaladino',
-  password: 'Stefan37', 
+  email: 'admin@admin.com',
+  password: 'password123', 
 };
 
 describe('🧪 Session Persistence', () => {
