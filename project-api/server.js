@@ -42,7 +42,7 @@ app.use(bodyParser.json());
 
 // Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'supersecret',
+  secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
   saveUninitialized: false,
   cookie: { secure: false } // Set to true if using HTTPS
@@ -62,25 +62,72 @@ mongoose.connect(globals.ConnectionString.MongoDB)
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB error:', err));
 
-// GridFS Setup
 const conn = mongoose.connection;
+
+// GridFS setup
 let gfs;
 conn.once('open', () => {
+  console.log('📡 Mongo connected');
+
   gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-    bucketName: 'highlights'
+    bucketName: 'highlights',
   });
+
   console.log('🎥 GridFS bucket ready');
 });
 
-// GridFS Storage for Multer
+// GridFsStorage setup with direct connection
 const storage = new GridFsStorage({
-  url: process.env.CONNECTION_STRING_MONGODB,
-  file: (req, file) => ({
-    filename: `${Date.now()}-${file.originalname}`,
-    bucketName: 'highlights'
-  })
+  url: globals.ConnectionString.MongoDB,
+  options: { useNewUrlParser: true, useUnifiedTopology: true },
+  file: (req, file) => {
+    return {
+      filename: `${Date.now()}-${file.originalname}`,
+      bucketName: 'highlights',
+      metadata: {
+        description: req.body.description,
+        gameDate: req.body.gameDate,
+      },
+      contentType: file.mimetype
+    };
+  },
 });
 const upload = multer({ storage });
+
+// Serve video stream by filename
+app.get('/api/videos/:filename', async (req, res) => {
+  try {
+    const file = await conn.db.collection('highlights.files').findOne({ filename: req.params.filename });
+
+    if (!file) return res.status(404).json({ error: 'File not found' });
+
+    if (!file.contentType || !file.contentType.startsWith('video/')) {
+      return res.status(400).json({ error: 'Not a video file' });
+    }
+
+    res.set('Content-Type', file.contentType);
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+
+    const readStream = gfs.openDownloadStreamByName(req.params.filename);
+    readStream.pipe(res);
+
+    readStream.on('error', (err) => {
+      console.error('Stream error:', err);
+      res.status(500).end();
+    });
+  } catch (err) {
+    console.error('❌ Video stream error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/auth/status', (req, res) => {
+  if (req.isAuthenticated()) {
+    res.status(200).json({ message: 'Authenticated' });
+  } else {
+    res.status(401).json({ message: 'Not authenticated' });
+  }
+});
 
 // Routes
 app.use('/players', playerRouter(upload));
@@ -90,6 +137,11 @@ app.get('/', (req, res) => {
   res.send('🏒 Men\'s League Hockey Stats API is live');
 });
 
-// Server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// Export app and Mongo connection for tests
+module.exports = { app, conn };
+
+// Only start server if file is run directly (not imported by test)
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}

@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate, Navigate } from 'react-router-dom';
 import axios from '../api';
+import { AuthContext } from '../context/AuthContext';
+import LogoutButton from '../components/LogoutButton';
 
 interface Player {
   _id: string;
@@ -15,16 +17,21 @@ interface Player {
 }
 
 const AdminDashboard: React.FC = () => {
+  const { isAuthenticated } = useContext(AuthContext);
   const [players, setPlayers] = useState<Player[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Player>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get<Player[]>('/players')
-      .then(res => setPlayers(res.data))
-      .catch(err => console.error('Error fetching players:', err));
-  }, []);
+    if (isAuthenticated) {
+      axios.get<Player[]>('/players')
+        .then(res => setPlayers(res.data))
+        .catch(err => console.error('Error fetching players:', err));
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) return <Navigate to="/login" />;
 
   const handleEdit = (player: Player) => {
     setEditingId(player._id);
@@ -59,6 +66,7 @@ const AdminDashboard: React.FC = () => {
   return (
     <div style={{ padding: '2rem' }}>
       <h1>Admin Dashboard</h1>
+      <LogoutButton />
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
@@ -74,7 +82,6 @@ const AdminDashboard: React.FC = () => {
             const isEditing = editingId === player._id;
             return (
               <tr key={player._id} style={{ borderBottom: '1px solid #ccc' }}>
-                {/* NAME */}
                 <td>
                   {isEditing ? (
                     <input
@@ -86,19 +93,19 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </td>
 
-                {/* POSITION */}
                 <td>{player.position}</td>
 
-                {/* GAMES PLAYED */}
                 <td>
                   {isEditing ? (
                     <input
                       type="number"
                       value={formData.gamesPlayed ?? ''}
-                      onChange={e => setFormData({
-                        ...formData,
-                        gamesPlayed: e.target.value === '' ? undefined : +e.target.value
-                      })}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          gamesPlayed: e.target.value === '' ? undefined : +e.target.value
+                        })
+                      }
                       style={{ width: '4rem' }}
                     />
                   ) : (
@@ -106,7 +113,6 @@ const AdminDashboard: React.FC = () => {
                   )}
                 </td>
 
-                {/* VARIABLE STATS */}
                 <td>
                   {player.position === 'Skater' ? (
                     isEditing ? (
@@ -115,64 +121,69 @@ const AdminDashboard: React.FC = () => {
                         <input
                           type="number"
                           value={formData.goals ?? ''}
-                          onChange={e => setFormData({
-                            ...formData,
-                            goals: e.target.value === '' ? undefined : +e.target.value
-                          })}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              goals: e.target.value === '' ? undefined : +e.target.value
+                            })
+                          }
                           style={{ width: '3rem' }}
                         />{' '}
                         A:{' '}
                         <input
                           type="number"
                           value={formData.assists ?? ''}
-                          onChange={e => setFormData({
-                            ...formData,
-                            assists: e.target.value === '' ? undefined : +e.target.value
-                          })}
+                          onChange={e =>
+                            setFormData({
+                              ...formData,
+                              assists: e.target.value === '' ? undefined : +e.target.value
+                            })
+                          }
                           style={{ width: '3rem' }}
                         />{' '}
                         P:{' '}
-                        {( (formData.goals ?? 0) + (formData.assists ?? 0) )}
+                        {(formData.goals ?? 0) + (formData.assists ?? 0)}
                       </>
                     ) : (
                       <>
                         G: {player.goals} | A: {player.assists} | P: {player.points}
                       </>
                     )
-                  ) : (
-                    isEditing ? (
-                      <>
-                        W:{' '}
-                        <input
-                          type="number"
-                          value={formData.wins ?? ''}
-                          onChange={e => setFormData({
+                  ) : isEditing ? (
+                    <>
+                      W:{' '}
+                      <input
+                        type="number"
+                        value={formData.wins ?? ''}
+                        onChange={e =>
+                          setFormData({
                             ...formData,
                             wins: e.target.value === '' ? undefined : +e.target.value
-                          })}
-                          style={{ width: '3rem' }}
-                        />{' '}
-                        GAA:{' '}
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={formData.goalsAgainstAverage ?? ''}
-                          onChange={e => setFormData({
+                          })
+                        }
+                        style={{ width: '3rem' }}
+                      />{' '}
+                      GAA:{' '}
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.goalsAgainstAverage ?? ''}
+                        onChange={e =>
+                          setFormData({
                             ...formData,
                             goalsAgainstAverage: e.target.value === '' ? undefined : +e.target.value
-                          })}
-                          style={{ width: '4rem' }}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        W: {player.wins} | GAA: {player.goalsAgainstAverage}
-                      </>
-                    )
+                          })
+                        }
+                        style={{ width: '4rem' }}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      W: {player.wins} | GAA: {player.goalsAgainstAverage}
+                    </>
                   )}
                 </td>
 
-                {/* ACTIONS */}
                 <td>
                   {isEditing ? (
                     <button onClick={() => handleSave(player._id)}>Save</button>

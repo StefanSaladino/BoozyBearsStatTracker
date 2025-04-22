@@ -1,26 +1,22 @@
-// routes/players.js
-
 const express = require("express");
 const router = express.Router();
 const Player = require("../models/Player");
 const Skater = require("../models/Skater");
 const Goalie = require("../models/Goalie");
-// const authMiddleware = require('../middleware/auth');
 const mongoose = require("mongoose");
-const Grid = require("gridfs-stream");
 
 module.exports = (upload) => {
-  const conn = mongoose.connection;
   let gfs;
+  const conn = mongoose.connection;
   conn.once("open", () => {
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection("highlights");
+    gfs = new mongoose.mongo.GridFSBucket(conn.db, {
+      bucketName: "highlights",
+    });
   });
 
-  // Create a player (skater or goalie)
+  // Create player
   router.post("/", async (req, res) => {
     const { position } = req.body;
-    // Choose model based on position
     const Model = position === "Skater" ? Skater : Goalie;
     const player = new Model(req.body);
     await player.save();
@@ -37,7 +33,7 @@ module.exports = (upload) => {
     }
   });
 
-  // Get one player by ID
+  // Get single player
   router.get("/:id", async (req, res) => {
     try {
       const player = await Player.findById(req.params.id);
@@ -48,25 +44,17 @@ module.exports = (upload) => {
     }
   });
 
-  // PUT /players/:id — update an existing player
+  // Update player
   router.put("/:id", async (req, res) => {
     try {
-      // 1. Find the base document to get its position
       const base = await Player.findById(req.params.id);
       if (!base) return res.status(404).json({ message: "Player not found" });
 
-      // 2. Choose the right model
-      const Model =
-        base.position === "Skater" ? Skater : require("../models/Goalie");
-
-      // 3. Load the document through the discriminator
+      const Model = base.position === "Skater" ? Skater : Goalie;
       const doc = await Model.findById(req.params.id);
       if (!doc) return res.status(404).json({ message: "Player not found" });
 
-      // 4. Apply only the fields you allow to be edited
       Object.assign(doc, req.body);
-
-      // 5. Calling .save() fires your pre('save') hook, so points updates
       const updated = await doc.save();
       res.json(updated);
     } catch (err) {
@@ -91,20 +79,24 @@ module.exports = (upload) => {
       const player = await Player.findById(req.params.id);
       if (!player) return res.status(404).json({ message: "Player not found" });
 
+      if (!req.file) return res.status(400).json({ message: "No video uploaded" });
+
       const metadata = {
         filename: req.file.filename,
         gameDate: req.body.gameDate,
+        description: req.body.description,
       };
 
       player.highlightVideos.push(metadata);
       await player.save();
+
       res.json(player);
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   });
 
-  // Delete a highlight video
+  // Delete highlight
   router.delete("/:id/highlight/:filename", async (req, res) => {
     const { id, filename } = req.params;
 
@@ -112,7 +104,17 @@ module.exports = (upload) => {
       const player = await Player.findById(id);
       if (!player) return res.status(404).json({ message: "Player not found" });
 
-      gfs.remove({ filename, root: "highlights" }, async (err) => {
+      // Find the file to get its _id
+      const files = await conn.db
+        .collection("highlights.files")
+        .find({ filename })
+        .toArray();
+
+      if (!files.length) return res.status(404).json({ message: "Video not found" });
+
+      const fileId = files[0]._id;
+
+      gfs.delete(fileId, async (err) => {
         if (err) return res.status(500).json({ error: err.message });
 
         player.highlightVideos = player.highlightVideos.filter(

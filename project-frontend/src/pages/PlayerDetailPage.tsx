@@ -110,7 +110,7 @@ const PlayerDetailPage: React.FC = () => {
             <div key={video._id} className="highlight-card">
               <video width="480" controls>
                 {/* Render the video with the correct filename */}
-                <source src={`/api/videos/${video.filename}`} type="video/mp4" />
+                <source src={`http://localhost:3000/api/videos/${video.filename}`} type="video/mp4" />
                 {/* Fallback message if video tag is not supported */}
                 Your browser does not support the video tag.
               </video>
