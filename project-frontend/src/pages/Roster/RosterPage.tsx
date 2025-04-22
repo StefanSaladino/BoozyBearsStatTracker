@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import axios from '../api';
+import axios from '../../api';
 import { Link } from 'react-router-dom';
-// import './RosterPage.css';
+import '../Roster/RosterPage.css';
+import mainLogo from '../../assets/main-logo.png'
 
 // Type definition for a player
 interface Player {
@@ -48,6 +49,10 @@ function RosterPage() {
 
   return (
     <div className="roster-page">
+      <div className='rosterBar'>
+      <img src={mainLogo} alt="Boozy Bears Logo" />
+      <h1>Boozy Bears Roster</h1>
+      </div>
       <h2>Skaters</h2>
       <table className="players-table">
         <thead>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from '../api';
+import axios from '../../api';
 
 interface PlayerOption {
   _id: string;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'; // Import necessary hooks from React
 import { useParams } from 'react-router-dom'; // Import useParams to extract the player ID from the URL
-import axios from '../api'; // Import the axios instance for making API requests
+import axios from '../../api'; // Import the axios instance for making API requests
 
 // Type definitions for the Highlight and Player objects
 type Highlight = {

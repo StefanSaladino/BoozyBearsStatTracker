@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from '../api';
+import axios from '../../api';
 import { useNavigate } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {

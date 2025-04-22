@@ -2,14 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import LandingPage from './pages/LandingPage';
-import RosterPage from './pages/RosterPage';
-import PlayerDetailPage from './pages/PlayerDetailPage';
-import AdminDashboard from './pages/AdminDashboard';
-import NewPlayerPage from './pages/NewPlayerPage';
-import AddHighlightPage from './pages/AddHighlightPage';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
+import LandingPage from './pages/LandingPage/LandingPage';
+import RosterPage from './pages/Roster/RosterPage';
+import PlayerDetailPage from './pages/PlayerDetail/PlayerDetailPage';
+import AdminDashboard from './pages/AdminDashboard/AdminDashboard';
+import NewPlayerPage from './pages/NewPlayer/NewPlayerPage';
+import AddHighlightPage from './pages/AddHighlight/AddHighlightPage';
+import RegisterPage from './pages/Register/RegisterPage';
+import LoginPage from './pages/Login/LoginPage';
 import { AuthProvider } from './context/AuthContext';
 
 

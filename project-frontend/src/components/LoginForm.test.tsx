@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
-import LoginPage from '../pages/LoginPage';
+import LoginPage from '../pages/Login/LoginPage';
 import { AuthContext } from '../context/AuthContext';
 import axios from '../api';
 import React, { useState } from 'react';

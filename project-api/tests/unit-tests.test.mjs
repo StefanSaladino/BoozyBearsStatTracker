@@ -33,7 +33,7 @@ describe('🧪 Session Persistence', () => {
 
   it('🔐 should allow access to /admin after login', async () => {
     const res = await agent.get('/admin-dashboard');
-    expect(res.status).to.equal(200); // assuming /admin returns dashboard
+    expect(res.status).to.equal(200); 
     expect(res.text || res.body).to.exist;
   });
 

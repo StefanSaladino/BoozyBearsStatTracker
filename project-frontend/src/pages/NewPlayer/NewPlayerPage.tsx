@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api';
+import axios from '../../api';
 
 const NewPlayerPage: React.FC = () => {
   const [name, setName] = useState('');

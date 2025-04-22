@@ -1,8 +1,8 @@
 // pages/LoginPage.tsx
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from '../api';
-import { AuthContext } from '../context/AuthContext';
+import axios from '../../api';
+import { AuthContext } from '../../context/AuthContext';
 
 const LoginPage: React.FC = () => {
   const { setIsAuthenticated } = useContext(AuthContext);

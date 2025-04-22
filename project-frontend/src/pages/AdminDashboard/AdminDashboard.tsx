@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
-import axios from '../api';
-import { AuthContext } from '../context/AuthContext';
-import LogoutButton from '../components/LogoutButton';
+import axios from '../../api';
+import { AuthContext } from '../../context/AuthContext';
+import LogoutButton from '../../components/LogoutButton';
 
 interface Player {
   _id: string;
