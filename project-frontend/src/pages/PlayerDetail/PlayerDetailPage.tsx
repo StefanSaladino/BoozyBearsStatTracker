@@ -11,6 +11,7 @@ type Highlight = {
 };
 
 type Player = {
+  jerseyNumber: number;
   _id: string;
   name: string;
   position: 'Skater' | 'Goalie';
@@ -50,7 +51,7 @@ const PlayerDetailPage: React.FC = () => {
     <div className="container my-5">
       {/* Player Info */}
       <div className="mb-4">
-        <h2 className="fw-bold text-dark">{player.name}</h2>
+        <h2 className="fw-bold text-dark">#<span color='gold'>{player.jerseyNumber}</span> {player.name}</h2>
         <h5 className="text-info-emphasis">Position: {player.position}</h5>
       </div>
 
