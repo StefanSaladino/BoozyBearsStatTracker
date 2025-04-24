@@ -16,6 +16,7 @@ const Goalie = Player.discriminator('Goalie', new mongoose.Schema({
   losses: Number,
   ties: Number,
   overtimeLosses: Number,
+  shutouts: Number,
   highlightVideos: [highlightSchema]
 }));
 

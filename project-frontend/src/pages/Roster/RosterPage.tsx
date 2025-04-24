@@ -8,6 +8,7 @@ import mainLogo from '../../assets/main-logo.png'
 interface Player {
   _id: string;
   name: string;
+  jerseyNumber: number;
   position: 'Skater' | 'Goalie';
   gamesPlayed: number;
   goals?: number;
@@ -15,11 +16,12 @@ interface Player {
   points?: number;
   wins?: number;
   goalsAgainstAverage?: number;
+  shutouts?: number;
 }
 
 // Limit allowed keys to only those we intend to sort by
 type SortableSkaterKey = keyof Pick<Player, 'name' | 'gamesPlayed' | 'goals' | 'assists' | 'points'>;
-type SortableGoalieKey = keyof Pick<Player, 'name' | 'gamesPlayed' | 'wins' | 'goalsAgainstAverage'>;
+type SortableGoalieKey = keyof Pick<Player, 'name' | 'gamesPlayed' | 'wins' | 'goalsAgainstAverage' | 'shutouts'>;
 
 function RosterPage() {
   const [skaters, setSkaters] = useState<Player[]>([]);
@@ -117,6 +119,7 @@ function RosterPage() {
       <table className="players-table">
         <thead>
           <tr>
+            <th>#</th>
             <th onClick={() => handleSkaterSort('name')}>Name</th>
             <th onClick={() => handleSkaterSort('gamesPlayed')}>GP</th>
             <th onClick={() => handleSkaterSort('goals')}>G</th>
@@ -127,6 +130,7 @@ function RosterPage() {
         <tbody>
           {sortPlayers(skaters, sortConfigSkater).map(player => (
             <tr key={player._id}>
+              <td>{player.jerseyNumber}</td>
               <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
               <td>{player.gamesPlayed}</td>
               <td>{player.goals ?? 0}</td>
@@ -141,19 +145,23 @@ function RosterPage() {
       <table className="players-table">
         <thead>
           <tr>
+            <th>#</th>
             <th onClick={() => handleGoalieSort('name')}>Name</th>
             <th onClick={() => handleGoalieSort('gamesPlayed')}>GP</th>
             <th onClick={() => handleGoalieSort('wins')}>W</th>
             <th onClick={() => handleGoalieSort('goalsAgainstAverage')}>GAA</th>
+            <th onClick={() => handleGoalieSort('shutouts')}>SO</th>
           </tr>
         </thead>
         <tbody>
           {sortPlayers(goalies, sortConfigGoalie).map(player => (
             <tr key={player._id}>
+              <td>{player.jerseyNumber}</td>
               <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
               <td>{player.gamesPlayed}</td>
               <td>{player.wins ?? 0}</td>
               <td>{player.goalsAgainstAverage ?? 'N/A'}</td>
+              <td>{player.shutouts ?? 0}</td>
             </tr>
           ))}
         </tbody>

@@ -18,12 +18,6 @@ const authenticate = (req, res, next) => {
   return res.status(401).json({ message: 'Unauthorized' });
 };
 
-// Require admin access (adjust logic as needed)
-const requireAdmin = (req, res, next) => {
-  if (req.user && req.user.email === process.env.ADMIN_EMAIL) return next();
-  return res.status(403).json({ message: 'Forbidden: Admins only' });
-};
-
 // Logout handler
 const logout = (req, res) => {
   req.logout(err => {
@@ -41,6 +35,5 @@ module.exports = {
   loginLimiter,
   bruteForce,
   authenticate,
-  requireAdmin,
   logout
 };
