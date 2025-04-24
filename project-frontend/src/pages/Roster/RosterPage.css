@@ -98,4 +98,16 @@
       font-size: 1.4rem;
     }
   }
+
+  th {
+    cursor: pointer;
+    position: relative;
+  }
+  
+  th:after {
+    content: " ↑↓";
+    font-size: 0.8rem;
+    color: #888;
+  }
+  
   

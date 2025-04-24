@@ -2,7 +2,6 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import axios from '../../api';
 import { AuthContext } from '../../context/AuthContext';
-import LogoutButton from '../../components/LogoutButton';
 
 interface Player {
   _id: string;
@@ -64,11 +63,11 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Admin Dashboard</h1>
-      <LogoutButton />
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
+    <div className="container py-4">
+      <h1 className="mb-4">Admin Dashboard</h1>
+      
+      <table className="table table-bordered table-striped table-hover">
+        <thead className="thead-dark">
           <tr>
             <th>Name</th>
             <th>Position</th>
@@ -81,10 +80,11 @@ const AdminDashboard: React.FC = () => {
           {players.map(player => {
             const isEditing = editingId === player._id;
             return (
-              <tr key={player._id} style={{ borderBottom: '1px solid #ccc' }}>
+              <tr key={player._id}>
                 <td>
                   {isEditing ? (
                     <input
+                      className="form-control"
                       value={formData.name ?? ''}
                       onChange={e => setFormData({ ...formData, name: e.target.value })}
                     />
@@ -99,6 +99,7 @@ const AdminDashboard: React.FC = () => {
                   {isEditing ? (
                     <input
                       type="number"
+                      className="form-control"
                       value={formData.gamesPlayed ?? ''}
                       onChange={e =>
                         setFormData({
@@ -106,7 +107,6 @@ const AdminDashboard: React.FC = () => {
                           gamesPlayed: e.target.value === '' ? undefined : +e.target.value
                         })
                       }
-                      style={{ width: '4rem' }}
                     />
                   ) : (
                     player.gamesPlayed
@@ -117,9 +117,10 @@ const AdminDashboard: React.FC = () => {
                   {player.position === 'Skater' ? (
                     isEditing ? (
                       <>
-                        G:{' '}
+                        <label>G</label>
                         <input
                           type="number"
+                          className="form-control mb-1"
                           value={formData.goals ?? ''}
                           onChange={e =>
                             setFormData({
@@ -127,11 +128,11 @@ const AdminDashboard: React.FC = () => {
                               goals: e.target.value === '' ? undefined : +e.target.value
                             })
                           }
-                          style={{ width: '3rem' }}
-                        />{' '}
-                        A:{' '}
+                        />
+                        <label>A</label>
                         <input
                           type="number"
+                          className="form-control mb-1"
                           value={formData.assists ?? ''}
                           onChange={e =>
                             setFormData({
@@ -139,10 +140,13 @@ const AdminDashboard: React.FC = () => {
                               assists: e.target.value === '' ? undefined : +e.target.value
                             })
                           }
-                          style={{ width: '3rem' }}
-                        />{' '}
-                        P:{' '}
-                        {(formData.goals ?? 0) + (formData.assists ?? 0)}
+                        />
+                        <label>P</label>
+                        <input
+                          className="form-control"
+                          value={(formData.goals ?? 0) + (formData.assists ?? 0)}
+                          disabled
+                        />
                       </>
                     ) : (
                       <>
@@ -151,9 +155,10 @@ const AdminDashboard: React.FC = () => {
                     )
                   ) : isEditing ? (
                     <>
-                      W:{' '}
+                      <label>W</label>
                       <input
                         type="number"
+                        className="form-control mb-1"
                         value={formData.wins ?? ''}
                         onChange={e =>
                           setFormData({
@@ -161,11 +166,11 @@ const AdminDashboard: React.FC = () => {
                             wins: e.target.value === '' ? undefined : +e.target.value
                           })
                         }
-                        style={{ width: '3rem' }}
-                      />{' '}
-                      GAA:{' '}
+                      />
+                      <label>GAA</label>
                       <input
                         type="number"
+                        className="form-control"
                         step="0.01"
                         value={formData.goalsAgainstAverage ?? ''}
                         onChange={e =>
@@ -174,7 +179,6 @@ const AdminDashboard: React.FC = () => {
                             goalsAgainstAverage: e.target.value === '' ? undefined : +e.target.value
                           })
                         }
-                        style={{ width: '4rem' }}
                       />
                     </>
                   ) : (
@@ -186,12 +190,14 @@ const AdminDashboard: React.FC = () => {
 
                 <td>
                   {isEditing ? (
-                    <button onClick={() => handleSave(player._id)}>Save</button>
+                    <button className="btn btn-success" onClick={() => handleSave(player._id)}>Save</button>
                   ) : (
-                    <button onClick={() => handleEdit(player)}>Edit</button>
-                  )}{' '}
-                  <button onClick={() => handleDelete(player._id)}>Remove</button>{' '}
-                  <button onClick={() => handleAddHighlight(player._id)}>Add Highlight</button>
+                    <button className="btn btn-primary" onClick={() => handleEdit(player)}>Edit</button>
+                  )}
+                  {' '}
+                  <button className="btn btn-danger" onClick={() => handleDelete(player._id)}>Remove</button>
+                  {' '}
+                  <button className="btn btn-info" onClick={() => handleAddHighlight(player._id)}>Add Highlight</button>
                 </td>
               </tr>
             );
@@ -200,8 +206,8 @@ const AdminDashboard: React.FC = () => {
       </table>
 
       <button
+        className="btn btn-secondary"
         onClick={() => navigate('/admin/new-player')}
-        style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}
       >
         Add New Player
       </button>

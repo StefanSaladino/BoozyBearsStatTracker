@@ -17,7 +17,6 @@ const AddHighlightPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch list of players for dropdown
     axios.get<PlayerOption[]>('/players')
       .then(res => setPlayers(res.data))
       .catch(err => console.error(err));
@@ -36,36 +35,68 @@ const AddHighlightPage: React.FC = () => {
       await axios.post(`/players/${selectedPlayer}/highlight`, form, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      navigate('/admin');
+      navigate('/admin-dashboard');
     } catch (err) {
       console.error('Error uploading highlight:', err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: '2rem' }}>
-      <h2>Add Highlight Video</h2>
-      <div>
-        <label>Player:</label>{' '}
-        <select value={selectedPlayer} onChange={e => setSelectedPlayer(e.target.value)}>
-          <option value="">-- Select Player --</option>
-          {players.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
-        </select>
-      </div>
-      <div>
-        <label>Video File:</label>{' '}
-        <input type="file" accept="video/*" onChange={e => setFile(e.target.files?.[0] || null)} required />
-      </div>
-      <div>
-        <label>Description:</label>{' '}
-        <input value={description} onChange={e => setDescription(e.target.value)} />
-      </div>
-      <div>
-        <label>Game Date:</label>{' '}
-        <input type="date" value={gameDate} onChange={e => setGameDate(e.target.value)} />
-      </div>
-      <button type="submit" style={{ marginTop: '1rem' }}>Upload Highlight</button>
-    </form>
+    <div className="container mt-5 pb-4">
+      <h2 className="mb-4">Add Highlight Video</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Player</label>
+          <select
+            className="form-select"
+            value={selectedPlayer}
+            onChange={e => setSelectedPlayer(e.target.value)}
+            required
+          >
+            <option value="">-- Select Player --</option>
+            {players.map(p => (
+              <option key={p._id} value={p._id}>{p.name}</option>
+            ))}
+          </select>
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Video File</label>
+          <input
+            className="form-control"
+            type="file"
+            accept="video/*"
+            onChange={e => setFile(e.target.files?.[0] || null)}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Description</label>
+          <input
+            className="form-control"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            required
+          />
+        </div>
+
+        <div className="mb-3">
+          <label className="form-label">Game Date</label>
+          <input
+            className="form-control"
+            type="date"
+            value={gameDate}
+            onChange={e => setGameDate(e.target.value)}
+            required
+          />
+        </div>
+
+        <button type="submit" className="btn btn-primary mt-2">
+          Upload Highlight
+        </button>
+      </form>
+    </div>
   );
 };
 

@@ -4,8 +4,7 @@ import axios from '../../api';
 
 const NewPlayerPage: React.FC = () => {
   const [name, setName] = useState('');
-  const [position, setPosition] = useState<'Skater'|'Goalie'>('Skater');
-  // Stats fields
+  const [position, setPosition] = useState<'Skater' | 'Goalie'>('Skater');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [goals, setGoals] = useState(0);
   const [assists, setAssists] = useState(0);
@@ -15,7 +14,6 @@ const NewPlayerPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Build payload for POST /players
     const payload: any = { name, position, gamesPlayed };
     if (position === 'Skater') {
       payload.goals = goals;
@@ -26,55 +24,88 @@ const NewPlayerPage: React.FC = () => {
     }
     try {
       await axios.post('/players', payload);
-      navigate('/admin'); // Back to dashboard
+      navigate('/admin-dashboard');
     } catch (err) {
       console.error('Error creating player:', err);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: '2rem' }}>
-      <h2>Add New Player</h2>
-      <div>
-        <label>Name:</label>{' '}
-        <input value={name} onChange={e => setName(e.target.value)} required />
-      </div>
-      <div>
-        <label>Position:</label>{' '}
-        <select value={position} onChange={e => setPosition(e.target.value as any)}>
-          <option value="Skater">Skater</option>
-          <option value="Goalie">Goalie</option>
-        </select>
-      </div>
-      <div>
-        <label>Games Played:</label>{' '}
-        <input type="number" value={gamesPlayed} onChange={e => setGamesPlayed(+e.target.value)} />
-      </div>
-      {position === 'Skater' ? (
-        <>
-          <div>
-            <label>Goals:</label>{' '}
-            <input type="number" value={goals} onChange={e => setGoals(+e.target.value)} />
-          </div>
-          <div>
-            <label>Assists:</label>{' '}
-            <input type="number" value={assists} onChange={e => setAssists(+e.target.value)} />
-          </div>
-        </>
-      ) : (
-        <>
-          <div>
-            <label>Wins:</label>{' '}
-            <input type="number" value={wins} onChange={e => setWins(+e.target.value)} />
-          </div>
-          <div>
-            <label>GAA:</label>{' '}
-            <input type="number" step="0.01" value={goalsAgainstAverage} onChange={e => setGoalsAgainstAverage(+e.target.value)} />
-          </div>
-        </>
-      )}
-      <button type="submit" style={{ marginTop: '1rem' }}>Create Player</button>
-    </form>
+    <div className="container mt-5 mb-5">
+      <h2 className="mb-4">Add New Player</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label className="form-label">Name</label>
+          <input className="form-control" value={name} onChange={e => setName(e.target.value)} required />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Position</label>
+          <select
+            className="form-select"
+            value={position}
+            onChange={e => setPosition(e.target.value as 'Skater' | 'Goalie')}
+          >
+            <option value="Skater">Skater</option>
+            <option value="Goalie">Goalie</option>
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Games Played</label>
+          <input
+            type="number"
+            className="form-control"
+            value={gamesPlayed}
+            onChange={e => setGamesPlayed(+e.target.value)}
+          />
+        </div>
+
+        {position === 'Skater' ? (
+          <>
+            <div className="mb-3">
+              <label className="form-label">Goals</label>
+              <input
+                type="number"
+                className="form-control"
+                value={goals}
+                onChange={e => setGoals(+e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Assists</label>
+              <input
+                type="number"
+                className="form-control"
+                value={assists}
+                onChange={e => setAssists(+e.target.value)}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="mb-3">
+              <label className="form-label">Wins</label>
+              <input
+                type="number"
+                className="form-control"
+                value={wins}
+                onChange={e => setWins(+e.target.value)}
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">GAA</label>
+              <input
+                type="number"
+                step="0.01"
+                className="form-control"
+                value={goalsAgainstAverage}
+                onChange={e => setGoalsAgainstAverage(+e.target.value)}
+              />
+            </div>
+          </>
+        )}
+        <button type="submit" className="btn btn-success mt-3">Create Player</button>
+      </form>
+    </div>
   );
 };
 

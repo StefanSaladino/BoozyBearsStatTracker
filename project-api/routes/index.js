@@ -1,27 +1,32 @@
 const express = require('express');
 const passport = require('passport');
-const Admin = require('../models/admin'); // Mongoose model using passport-local-mongoose
+const Admin = require('../models/admin');
 const {
   loginLimiter,
   bruteForce,
-  requireAdmin,
   authenticate,
   logout
 } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// REGISTER admin
-router.post('/register', async (req, res) => {
+// REGISTER admin — Only if no admin exists
+router.post('/register', async (req, res, next) => {
+  try {
+    const adminCount = await Admin.countDocuments();
+    if (adminCount > 0) {
+      return res.status(403).json({ error: 'Admin registration is disabled' });
+    }
+    next();
+  } catch (err) {
+    console.error('Error checking admin count:', err);
+    res.status(500).json({ error: 'Server error during registration check' });
+  }
+}, async (req, res) => {
   const { email, password } = req.body;
   try {
-    const existingAdmin = await Admin.findOne({ email });
-    if (existingAdmin) {
-      return res.status(400).json({ error: 'Email already exists' });
-    }
-
     const admin = new Admin({ email });
-    await Admin.register(admin, password); // 🔐 auto-hashes password
+    await Admin.register(admin, password); // hashes password
 
     req.login(admin, (err) => {
       if (err) return res.status(500).json({ error: 'Login after registration failed' });
@@ -34,25 +39,16 @@ router.post('/register', async (req, res) => {
 });
 
 // LOGIN admin
-router.post('/login', passport.authenticate('local'), (req, res) => {
+router.post('/login', loginLimiter, bruteForce, passport.authenticate('local'), (req, res) => {
   res.status(200).json({ message: 'Logged in successfully', user: req.user.email });
 });
 
 // LOGOUT admin
-router.post('/logout', (req, res) => {
-  req.logout(err => {
-    if (err) return res.status(500).json({ error: 'Logout error' });
-    res.status(200).json({ message: 'Logged out successfully' });
-  });
-});
+router.post('/logout', logout);
 
-// SESSION CHECK
-router.get('/admin-dashboard', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.status(200).json({ user: req.user.email });
-  } else {
-    res.status(401).json({ error: 'Not authenticated' });
-  }
+// SESSION CHECK — Protected route
+router.get('/admin-dashboard', authenticate, (req, res) => {
+  res.status(200).json({ user: req.user.email });
 });
 
 module.exports = router;

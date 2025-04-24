@@ -22,7 +22,7 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "mocha tests/unit-tests.test.mjs"
+    "test": "mocha tests/security.test.mjs"
   },
   "keywords": [],
   "author": "",

@@ -42,10 +42,14 @@ app.use(bodyParser.json());
 
 // Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
+  secret: 'secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
+  cookie: {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // set to true in production
+    sameSite: 'lax', // allows cross-origin requests from same-site (good default)
+  },
 }));
 
 // Initialize Passport

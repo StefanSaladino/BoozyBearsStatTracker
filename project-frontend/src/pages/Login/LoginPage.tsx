@@ -1,4 +1,3 @@
-// pages/LoginPage.tsx
 import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../api';
@@ -23,36 +22,31 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '4rem auto', textAlign: 'center' }}>
-      <h2>Admin Login</h2>
+    <div className="container mb-4" style={{ maxWidth: '400px', marginTop: '5rem' }}>
+      <h2 className="text-center mb-4">Admin Login</h2>
       <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: '1rem' }}>
+        <div className="mb-3">
           <input
             type="text"
+            className="form-control"
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            style={{ width: '100%', padding: '0.5rem' }}
           />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
+        <div className="mb-3">
           <input
             type="password"
+            className="form-control"
             placeholder="Password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
-            style={{ width: '100%', padding: '0.5rem' }}
           />
         </div>
-        {errorMsg && <p style={{ color: 'red' }}>{errorMsg}</p>}
-        <button
-          type="submit"
-          style={{ padding: '0.5rem 1rem', width: '100%', background: '#007bff', color: '#fff', border: 'none' }}
-        >
-          Login
-        </button>
+        {errorMsg && <div className="alert alert-danger py-2">{errorMsg}</div>}
+        <button type="submit" className="btn btn-primary w-100">Login</button>
       </form>
     </div>
   );

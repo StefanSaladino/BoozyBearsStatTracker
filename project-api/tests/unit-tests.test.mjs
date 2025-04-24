@@ -6,8 +6,8 @@ const expect = chai.expect;
 
 // 👇 hardcoded credentials for login (matches Admin model)
 const adminCredentials = {
-  email: 'admin@admin.com',
-  password: 'password123', 
+  email: process.env.ADMIN_USERNAME,
+  password: process.env.ADMIN_PASSWORD, 
 };
 
 describe('🧪 Session Persistence', () => {
