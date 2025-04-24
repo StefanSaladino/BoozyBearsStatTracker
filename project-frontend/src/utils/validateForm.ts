@@ -34,8 +34,8 @@ export function validatePlayerForm(form: any, position: 'Skater' | 'Goalie') {
     if (!form.description.trim()) errors.description = 'Description is required';
     if (!form.gameDate) {
       errors.gameDate = 'Game date is required';
-    } else if (submittedDate >= today) {
-      errors.gameDate = 'Game date must be before today';
+    } else if (submittedDate > today) {
+      errors.gameDate = 'Game date must not be after today';
     }
   
     return errors;
