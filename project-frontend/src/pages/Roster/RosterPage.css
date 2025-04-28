@@ -104,10 +104,19 @@
     position: relative;
   }
   
-  th:after {
-    content: " ↑↓";
-    font-size: 0.8rem;
-    color: #888;
+  .players-table th {
+    cursor: default;
   }
+  
+  .players-table th.sortable {
+    cursor: pointer;
+  }
+  
+  .players-table th.sortable::after {
+    content: ' ⇅';
+    font-size: 0.8em;
+    color: #aaa;
+  }
+  
   
   

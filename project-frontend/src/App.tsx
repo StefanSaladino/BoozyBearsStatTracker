@@ -10,6 +10,7 @@ import NewPlayerPage from './pages/NewPlayer/NewPlayerPage';
 import AddHighlightPage from './pages/AddHighlight/AddHighlightPage';
 import RegisterPage from './pages/Register/RegisterPage';
 import LoginPage from './pages/Login/LoginPage';
+import EditHighlightsPage from './pages/EditHighlights/EditHighlights'
 import { AuthProvider } from './context/AuthContext';
 
 
@@ -44,6 +45,9 @@ const App: React.FC = () => {
 
           {/*Admin page to add highlight videos */}
           <Route path="/admin/add-highlight/:playerId" element={<AddHighlightPage />} />
+
+          {/*Admin page to edit/delete all highlights */}
+          <Route path="/admin/edit-highlights" element={<EditHighlightsPage />} />
 
           
         </Routes>

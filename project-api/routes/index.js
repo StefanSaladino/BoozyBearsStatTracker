@@ -3,7 +3,6 @@ const passport = require('passport');
 const Admin = require('../models/admin');
 const {
   loginLimiter,
-  bruteForce,
   authenticate,
   logout
 } = require('../middleware/authMiddleware');
@@ -15,7 +14,7 @@ router.post('/register', async (req, res, next) => {
   try {
     const adminCount = await Admin.countDocuments();
     if (adminCount > 0) {
-      return res.status(403).json({ error: 'Admin registration is disabled' });
+      return res.status(403).json({ error: 'Admin registration is disabled. Please contact your server administrator for more information.' });
     }
     next();
   } catch (err) {
@@ -39,7 +38,7 @@ router.post('/register', async (req, res, next) => {
 });
 
 // LOGIN admin
-router.post('/login', loginLimiter, bruteForce, passport.authenticate('local'), (req, res) => {
+router.post('/login', loginLimiter, passport.authenticate('local'), (req, res) => {
   res.status(200).json({ message: 'Logged in successfully', user: req.user.email });
 });
 

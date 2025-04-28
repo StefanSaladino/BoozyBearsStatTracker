@@ -14,6 +14,7 @@ interface Player {
   points?: number;
   wins?: number;
   goalsAgainstAverage?: number;
+  shutouts?: number;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -97,13 +98,17 @@ const AdminDashboard: React.FC = () => {
                   {isEditing ? (
                     <>
                       <input
-                        className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                        className={`form-control ${
+                          errors.name ? "is-invalid" : ""
+                        }`}
                         value={formData.name ?? ""}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
                         }
                       />
-                      {errors.name && <div className="invalid-feedback">{errors.name}</div>}
+                      {errors.name && (
+                        <div className="invalid-feedback">{errors.name}</div>
+                      )}
                     </>
                   ) : (
                     player.name
@@ -117,17 +122,24 @@ const AdminDashboard: React.FC = () => {
                     <>
                       <input
                         type="number"
-                        className={`form-control ${errors.gamesPlayed ? "is-invalid" : ""}`}
+                        className={`form-control ${
+                          errors.gamesPlayed ? "is-invalid" : ""
+                        }`}
                         value={formData.gamesPlayed ?? ""}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            gamesPlayed: e.target.value === "" ? undefined : +e.target.value,
+                            gamesPlayed:
+                              e.target.value === ""
+                                ? undefined
+                                : +e.target.value,
                           })
                         }
                       />
                       {errors.gamesPlayed && (
-                        <div className="invalid-feedback">{errors.gamesPlayed}</div>
+                        <div className="invalid-feedback">
+                          {errors.gamesPlayed}
+                        </div>
                       )}
                     </>
                   ) : (
@@ -142,43 +154,60 @@ const AdminDashboard: React.FC = () => {
                         <label>G</label>
                         <input
                           type="number"
-                          className={`form-control mb-1 ${errors.goals ? "is-invalid" : ""}`}
+                          className={`form-control mb-1 ${
+                            errors.goals ? "is-invalid" : ""
+                          }`}
                           value={formData.goals ?? ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              goals: e.target.value === "" ? undefined : +e.target.value,
+                              goals:
+                                e.target.value === ""
+                                  ? undefined
+                                  : +e.target.value,
                             })
                           }
                         />
-                        {errors.goals && <div className="invalid-feedback">{errors.goals}</div>}
+                        {errors.goals && (
+                          <div className="invalid-feedback">{errors.goals}</div>
+                        )}
 
                         <label>A</label>
                         <input
                           type="number"
-                          className={`form-control mb-1 ${errors.assists ? "is-invalid" : ""}`}
+                          className={`form-control mb-1 ${
+                            errors.assists ? "is-invalid" : ""
+                          }`}
                           value={formData.assists ?? ""}
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              assists: e.target.value === "" ? undefined : +e.target.value,
+                              assists:
+                                e.target.value === ""
+                                  ? undefined
+                                  : +e.target.value,
                             })
                           }
                         />
                         {errors.assists && (
-                          <div className="invalid-feedback">{errors.assists}</div>
+                          <div className="invalid-feedback">
+                            {errors.assists}
+                          </div>
                         )}
 
                         <label>P</label>
                         <input
                           className="form-control"
-                          value={(formData.goals ?? 0) + (formData.assists ?? 0)}
+                          value={
+                            (formData.goals ?? 0) + (formData.assists ?? 0)
+                          }
                           disabled
                         />
                       </>
                     ) : (
                       <>
-                        G: {player.goals} | A: {player.assists} | P: {player.points}
+                        G: {player.goals} | A: {player.assists} | P:{" "}
+                        {player.points}
                       </>
                     )
                   ) : isEditing ? (
@@ -186,38 +215,76 @@ const AdminDashboard: React.FC = () => {
                       <label>W</label>
                       <input
                         type="number"
-                        className={`form-control mb-1 ${errors.wins ? "is-invalid" : ""}`}
+                        className={`form-control mb-1 ${
+                          errors.wins ? "is-invalid" : ""
+                        }`}
                         value={formData.wins ?? ""}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
-                            wins: e.target.value === "" ? undefined : +e.target.value,
+                            wins:
+                              e.target.value === ""
+                                ? undefined
+                                : +e.target.value,
                           })
                         }
                       />
-                      {errors.wins && <div className="invalid-feedback">{errors.wins}</div>}
+                      {errors.wins && (
+                        <div className="invalid-feedback">{errors.wins}</div>
+                      )}
 
                       <label>GAA</label>
                       <input
                         type="number"
-                        className={`form-control ${errors.goalsAgainstAverage ? "is-invalid" : ""}`}
+                        className={`form-control ${
+                          errors.goalsAgainstAverage ? "is-invalid" : ""
+                        }`}
                         step="0.01"
                         value={formData.goalsAgainstAverage ?? ""}
                         onChange={(e) =>
                           setFormData({
                             ...formData,
                             goalsAgainstAverage:
-                              e.target.value === "" ? undefined : +e.target.value,
+                              e.target.value === ""
+                                ? undefined
+                                : +e.target.value,
                           })
                         }
                       />
                       {errors.goalsAgainstAverage && (
-                        <div className="invalid-feedback">{errors.goalsAgainstAverage}</div>
+                        <div className="invalid-feedback">
+                          {errors.goalsAgainstAverage}
+                        </div>
+                      )}
+
+                      <label>SO</label>
+                      <input
+                        type="number"
+                        className={`form-control mb-1 ${
+                          errors.shutouts ? "is-invalid" : ""
+                        }`}
+                        value={formData.shutouts ?? ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            shutouts:
+                              e.target.value === ""
+                                ? undefined
+                                : +e.target.value,
+                          })
+                        }
+                      />
+                      {errors.shutouts && (
+                        <div className="invalid-feedback">
+                          {errors.shutouts}
+                        </div>
                       )}
                     </>
                   ) : (
                     <>
-                      W: {player.wins} | GAA: {player.goalsAgainstAverage}
+                      W: {player.wins} | GAA:{" "}
+                      {player.goalsAgainstAverage?.toFixed(2)} | SO:{" "}
+                      {player.shutouts}
                     </>
                   )}
                 </td>
@@ -270,6 +337,11 @@ const AdminDashboard: React.FC = () => {
         className="btn btn-secondary"
         onClick={() => navigate("/admin/new-player")}>
         Add New Player
+      </button>
+      <button
+        className="btn btn-warning ms-2"
+        onClick={() => navigate("/admin/edit-highlights")}>
+        Manage Highlights
       </button>
     </div>
   );

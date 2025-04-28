@@ -4,6 +4,9 @@ const Player = require("../models/Player");
 const Skater = require("../models/Skater");
 const Goalie = require("../models/Goalie");
 const mongoose = require("mongoose");
+const {
+  authenticate
+} = require('../middleware/authMiddleware');
 
 module.exports = (upload) => {
   let gfs;
@@ -15,7 +18,7 @@ module.exports = (upload) => {
   });
 
   // Create player
-  router.post("/", async (req, res) => {
+  router.post("/", authenticate, async (req, res) => {
     const { position } = req.body;
     const Model = position === "Skater" ? Skater : Goalie;
     const player = new Model(req.body);
@@ -72,9 +75,10 @@ module.exports = (upload) => {
       res.status(500).json({ error: err.message });
     }
   });
+  
 
   // Upload highlight
-  router.post("/:id/highlight", upload.single("video"), async (req, res) => {
+  router.post("/:id/highlight", authenticate, upload.single("video"), async (req, res) => {
     try {
       const player = await Player.findById(req.params.id);
       if (!player) return res.status(404).json({ message: "Player not found" });
@@ -91,39 +95,6 @@ module.exports = (upload) => {
       await player.save();
 
       res.json(player);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  // Delete highlight
-  router.delete("/:id/highlight/:filename", async (req, res) => {
-    const { id, filename } = req.params;
-
-    try {
-      const player = await Player.findById(id);
-      if (!player) return res.status(404).json({ message: "Player not found" });
-
-      // Find the file to get its _id
-      const files = await conn.db
-        .collection("highlights.files")
-        .find({ filename })
-        .toArray();
-
-      if (!files.length) return res.status(404).json({ message: "Video not found" });
-
-      const fileId = files[0]._id;
-
-      gfs.delete(fileId, async (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-
-        player.highlightVideos = player.highlightVideos.filter(
-          (v) => v.filename !== filename
-        );
-        await player.save();
-
-        res.json({ message: "Highlight deleted" });
-      });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }

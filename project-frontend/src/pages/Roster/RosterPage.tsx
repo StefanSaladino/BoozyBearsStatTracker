@@ -19,7 +19,7 @@ interface Player {
   shutouts?: number;
 }
 
-// Limit allowed keys to only those we intend to sort by
+// Limit allowed keys to only sortable
 type SortableSkaterKey = keyof Pick<Player, 'name' | 'gamesPlayed' | 'goals' | 'assists' | 'points'>;
 type SortableGoalieKey = keyof Pick<Player, 'name' | 'gamesPlayed' | 'wins' | 'goalsAgainstAverage' | 'shutouts'>;
 
@@ -120,11 +120,11 @@ function RosterPage() {
         <thead>
           <tr>
             <th>#</th>
-            <th onClick={() => handleSkaterSort('name')}>Name</th>
-            <th onClick={() => handleSkaterSort('gamesPlayed')}>GP</th>
-            <th onClick={() => handleSkaterSort('goals')}>G</th>
-            <th onClick={() => handleSkaterSort('assists')}>A</th>
-            <th onClick={() => handleSkaterSort('points')}>P</th>
+            <th className="sortable" onClick={() => handleSkaterSort('name')}>Name</th>
+            <th className="sortable" onClick={() => handleSkaterSort('gamesPlayed')}>GP</th>
+            <th className="sortable" onClick={() => handleSkaterSort('goals')}>G</th>
+            <th className="sortable" onClick={() => handleSkaterSort('assists')}>A</th>
+            <th className="sortable" onClick={() => handleSkaterSort('points')}>P</th>
           </tr>
         </thead>
         <tbody>
@@ -146,11 +146,11 @@ function RosterPage() {
         <thead>
           <tr>
             <th>#</th>
-            <th onClick={() => handleGoalieSort('name')}>Name</th>
-            <th onClick={() => handleGoalieSort('gamesPlayed')}>GP</th>
-            <th onClick={() => handleGoalieSort('wins')}>W</th>
-            <th onClick={() => handleGoalieSort('goalsAgainstAverage')}>GAA</th>
-            <th onClick={() => handleGoalieSort('shutouts')}>SO</th>
+            <th className="sortable" onClick={() => handleGoalieSort('name')}>Name</th>
+            <th className="sortable" onClick={() => handleGoalieSort('gamesPlayed')}>GP</th>
+            <th className="sortable" onClick={() => handleGoalieSort('wins')}>W</th>
+            <th className="sortable" onClick={() => handleGoalieSort('goalsAgainstAverage')}>GAA</th>
+            <th className="sortable" onClick={() => handleGoalieSort('shutouts')}>SO</th>
           </tr>
         </thead>
         <tbody>
@@ -160,7 +160,7 @@ function RosterPage() {
               <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
               <td>{player.gamesPlayed}</td>
               <td>{player.wins ?? 0}</td>
-              <td>{player.goalsAgainstAverage ?? 'N/A'}</td>
+              <td>{player.goalsAgainstAverage?.toFixed(2) ?? '0.00' ?? 'N/A'}</td>
               <td>{player.shutouts ?? 0}</td>
             </tr>
           ))}

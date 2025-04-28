@@ -21,6 +21,7 @@ type Player = {
   points?: number;
   wins?: number;
   goalsAgainstAverage?: number;
+  shutouts?: number,
   highlightVideos: Highlight[];
 };
 
@@ -51,7 +52,7 @@ const PlayerDetailPage: React.FC = () => {
     <div className="container my-5">
       {/* Player Info */}
       <div className="mb-4">
-        <h2 className="fw-bold text-dark">#<span color='gold'>{player.jerseyNumber}</span> {player.name}</h2>
+        <h2 className="fw-bold text-dark">#<span>{player.jerseyNumber}</span> {player.name}</h2>
         <h5 className="text-info-emphasis">Position: {player.position}</h5>
       </div>
 
@@ -73,6 +74,7 @@ const PlayerDetailPage: React.FC = () => {
             <>
               <StatItem label="Wins" value={player.wins} />
               <StatItem label="GAA" value={player.goalsAgainstAverage} />
+              <StatItem label="Shutouts" value={player.shutouts} />
             </>
           )}
         </div>
@@ -117,8 +119,11 @@ const PlayerDetailPage: React.FC = () => {
 const StatItem: React.FC<{ label: string; value?: number }> = ({ label, value }) => (
   <div className="flex-grow-1 px-3 border-end last:border-end-0">
     <div className="text-uppercase fw-semibold text-info small">{label}</div>
-    <div className="fs-5 fw-bold text-dark">{value ?? '—'}</div>
+    <div className="fs-5 fw-bold text-dark">
+      {value !== undefined ? (label === 'GAA' ? value.toFixed(2) : value) : '—'}
+    </div>
   </div>
 );
+
 
 export default PlayerDetailPage;

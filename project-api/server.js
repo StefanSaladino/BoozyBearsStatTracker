@@ -5,15 +5,16 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const path = require('path');
 const multer = require('multer');
 const session = require('express-session');
-const { GridFsStorage } = require('multer-gridfs-storage');
 const passport = require('passport');
 
 const globals = require('./configs/globals');
 const playerRouter = require('./routes/players');
-const authRouter = require('./routes/index'); // Handles login/logout/dashboard
+const authRouter = require('./routes/index');
+const highlightRouter = require('./routes/highlights');
+
+const { initGridFS } = require('./middleware/gridFS');
 
 // Auth middleware
 const {
@@ -24,8 +25,8 @@ const {
   logout
 } = require('./middleware/authMiddleware');
 
-// Load Admin model with passport-local-mongoose
-const Admin = require('./models/admin'); // Make sure you create this model
+// Load Admin model
+const Admin = require('./models/admin');
 
 dotenv.config();
 
@@ -33,30 +34,28 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173', // frontend origin
-  credentials: true // allow cookies/sessions
+  origin: 'http://localhost:5173',
+  credentials: true
 }));
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-// Session middleware
 app.use(session({
   secret: 'secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // set to true in production
-    sameSite: 'lax', // allows cross-origin requests from same-site (good default)
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
   },
 }));
 
-// Initialize Passport
+// Passport setup
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Passport-local-mongoose strategy
 passport.use(Admin.createStrategy());
 passport.serializeUser(Admin.serializeUser());
 passport.deserializeUser(Admin.deserializeUser());
@@ -68,61 +67,36 @@ mongoose.connect(globals.ConnectionString.MongoDB)
 
 const conn = mongoose.connection;
 
-// GridFS setup
-let gfs;
+let upload; // Will be set after DB is open
+
 conn.once('open', () => {
   console.log('📡 Mongo connected');
+  initGridFS(conn);
 
-  gfs = new mongoose.mongo.GridFSBucket(conn.db, {
-    bucketName: 'highlights',
-  });
-
-  console.log('🎥 GridFS bucket ready');
-});
-
-// GridFsStorage setup with direct connection
-const storage = new GridFsStorage({
-  url: globals.ConnectionString.MongoDB,
-  options: { useNewUrlParser: true, useUnifiedTopology: true },
-  file: (req, file) => {
-    return {
+  const { GridFsStorage } = require('multer-gridfs-storage');
+  const storage = new GridFsStorage({
+    url: globals.ConnectionString.MongoDB,
+    options: { useNewUrlParser: true, useUnifiedTopology: true },
+    file: (req, file) => ({
       filename: `${Date.now()}-${file.originalname}`,
       bucketName: 'highlights',
       metadata: {
         description: req.body.description,
         gameDate: req.body.gameDate,
       },
-      contentType: file.mimetype
-    };
-  },
-});
-const upload = multer({ storage });
+      contentType: file.mimetype,
+    }),
+  });
 
-// Serve video stream by filename
-app.get('/api/videos/:filename', async (req, res) => {
-  try {
-    const file = await conn.db.collection('highlights.files').findOne({ filename: req.params.filename });
+  upload = multer({ storage });
 
-    if (!file) return res.status(404).json({ error: 'File not found' });
+  // Mount routes
+  app.use('/players', playerRouter(upload));
+  app.use('/', authRouter);
+  app.use('/api/videos', highlightRouter(upload)); // Highlight video routes
 
-    if (!file.contentType || !file.contentType.startsWith('video/')) {
-      return res.status(400).json({ error: 'Not a video file' });
-    }
-
-    res.set('Content-Type', file.contentType);
-    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-
-    const readStream = gfs.openDownloadStreamByName(req.params.filename);
-    readStream.pipe(res);
-
-    readStream.on('error', (err) => {
-      console.error('Stream error:', err);
-      res.status(500).end();
-    });
-  } catch (err) {
-    console.error('❌ Video stream error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 });
 
 app.get('/auth/status', (req, res) => {
@@ -133,19 +107,8 @@ app.get('/auth/status', (req, res) => {
   }
 });
 
-// Routes
-app.use('/players', playerRouter(upload));
-app.use('/', authRouter);
-
 app.get('/', (req, res) => {
   res.send('🏒 Men\'s League Hockey Stats API is live');
 });
 
-// Export app and Mongo connection for tests
 module.exports = { app, conn };
-
-// Only start server if file is run directly (not imported by test)
-if (require.main === module) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-}

@@ -7,11 +7,6 @@ const loginLimiter = rateLimit({
   message: { message: 'Too many login attempts. Try again later.' }
 });
 
-// Brute force stub (custom logic can go here)
-const bruteForce = (req, res, next) => {
-  next();
-};
-
 // Require login session
 const authenticate = (req, res, next) => {
   if (req.isAuthenticated()) return next();
@@ -33,7 +28,6 @@ const logout = (req, res) => {
 
 module.exports = {
   loginLimiter,
-  bruteForce,
   authenticate,
   logout
 };
