@@ -1,27 +1,50 @@
-import React, { useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import LogoutButton from './LogoutButton';
 import '../App.css';
 
 const Header: React.FC = () => {
-  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { isAuthenticated } = useContext(AuthContext);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className="bg-dark text-white py-3 shadow">
+    <header className="bg-dark text-white py-3 shadow sticky-top">
       <div className="container d-flex justify-content-between align-items-center">
-        <h1 className="h3 m-0">🐻 Boozy Bears Hockey</h1>
-        <nav>
+        <h1 className="m-0">🐻 Boozy Bears Hockey</h1>
+
+        {/* Hamburger button for tablet/mobile (991px and smaller) */}
+        <button
+          className="custom-toggler d-lg-none border-0 bg-transparent"
+          type="button"
+          aria-label="Toggle navigation"
+          onClick={toggleMenu}
+        >
+          <div className="toggler-icon"></div>
+          <div className="toggler-icon"></div>
+          <div className="toggler-icon"></div>
+        </button>
+
+        {/* Normal nav for desktop (992px and larger) */}
+        <nav className="d-none d-lg-block">
           <ul className="nav">
             <li className="nav-item">
-              <Link to="/" className="nav-link text-white">🏠 Home</Link>
+              <Link to="/" className="nav-link text-white">
+                🏠 Home
+              </Link>
             </li>
             <li className="nav-item">
-              <Link to="/roster" className="nav-link text-white">🏒 Players</Link>
+              <Link to="/roster" className="nav-link text-white">
+                🏒 Players
+              </Link>
             </li>
             <li className="nav-item">
-              <Link to="/admin-dashboard" className="nav-link text-white">Admin</Link>
+              <Link to="/admin-dashboard" className="nav-link text-white">
+                Admin
+              </Link>
             </li>
             <li className="nav-item">
               {isAuthenticated ? (
@@ -34,12 +57,53 @@ const Header: React.FC = () => {
             </li>
           </ul>
         </nav>
-        <div className="ms-3">
+
+        {/* Right side badge */}
+        <div className="ms-3 d-none d-lg-block">
           <span className="badge bg-secondary">
             {isAuthenticated ? '✅ LOGGED IN' : '❌ NOT LOGGED IN'}
           </span>
         </div>
       </div>
+
+      {/* Collapsible mobile/tablet menu (991px and smaller) */}
+      {menuOpen && (
+        <div className="bg-dark d-lg-none">
+          <ul className="nav flex-column text-center">
+            <li className="nav-item">
+              <Link to="/" className="nav-link text-white" onClick={closeMenu}>
+                🏠 Home
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/roster" className="nav-link text-white" onClick={closeMenu}>
+                🏒 Players
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/admin-dashboard" className="nav-link text-white" onClick={closeMenu}>
+                Admin
+              </Link>
+            </li>
+            {isAuthenticated ? (
+              <>
+                <li className="nav-item">
+                  <span className="nav-link text-warning">✅ Logged In</span>
+                </li>
+                <li className="nav-item">
+                  <LogoutButton />
+                </li>
+              </>
+            ) : (
+              <li className="nav-item">
+                <Link to="/login" className="nav-link text-white" onClick={closeMenu}>
+                  🔐 Login
+                </Link>
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
     </header>
   );
 };
