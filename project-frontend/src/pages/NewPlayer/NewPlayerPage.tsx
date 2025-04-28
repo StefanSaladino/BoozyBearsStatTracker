@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api";
 import { validatePlayerForm } from "../../utils/validateForm";
+import  ToastNotification from "../../components/ToastComponent";
 
 const NewPlayerPage: React.FC = () => {
   const [name, setName] = useState("");
@@ -13,6 +14,7 @@ const NewPlayerPage: React.FC = () => {
   const [wins, setWins] = useState(0);
   const [goalsAgainstAverage, setGoalsAgainstAverage] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,8 +54,8 @@ const NewPlayerPage: React.FC = () => {
 
     try {
       await axios.post("/players", payload);
-      alert("Player successfully created!");
-      navigate("/admin-dashboard");
+      setShowToast(true); // ✅ show success toast
+      setTimeout(() => navigate("/admin-dashboard"), 2000);
     } catch (err) {
       console.error("Error creating player:", err);
     }
@@ -195,6 +197,11 @@ const NewPlayerPage: React.FC = () => {
           </form>
         </div>
       </div>
+      <ToastNotification
+        show={showToast}
+        message="New player added successfully!"
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
 };
