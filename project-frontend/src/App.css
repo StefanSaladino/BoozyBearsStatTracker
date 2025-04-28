@@ -11,13 +11,14 @@ header .container h1 {
 .custom-toggler {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
-  height: 24px;
-  width: 30px;
-  gap: 5px;
+  height: 30px;
+  width: 35px;
+  gap: 3px;
   border-radius: 2px;
   border: 1px solid white;
+  padding: 4px;
 }
 
 .toggler-icon {
@@ -29,9 +30,13 @@ header .container h1 {
 
 /* Nav Menu - Extra padding ONLY when collapsed */
 @media (max-width: 768px) {
+  #last-nav{
+    border-bottom: 0 !important;
+  }
+
   .nav-item {
     padding: 10px 0; /* Top/Bottom padding only */
-    border-bottom:  0.5px dashed white !important;
+    border-bottom:  0.5px dashed white;
     width: 100%;
   }
 }

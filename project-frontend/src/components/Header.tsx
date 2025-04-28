@@ -12,13 +12,13 @@ const Header: React.FC = () => {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <header className="bg-dark text-white py-3 shadow sticky-top">
-      <div className="container d-flex justify-content-between align-items-center">
+    <header className="bg-dark text-white shadow sticky-top">
+      <div className="container d-flex py-3 justify-content-between align-items-center">
         <h1 className="m-0">🐻 Boozy Bears Hockey</h1>
 
         {/* Hamburger button for tablet/mobile (991px and smaller) */}
         <button
-          className="custom-toggler d-lg-none border-0 bg-transparent"
+          className="custom-toggler d-lg-none border-1 bg-transparent"
           type="button"
           aria-label="Toggle navigation"
           onClick={toggleMenu}
@@ -59,7 +59,7 @@ const Header: React.FC = () => {
         </nav>
 
         {/* Right side badge */}
-        <div className="ms-3 d-none d-lg-block">
+        <div className="ms-3 d-none d-lg-block" >
           <span className="badge bg-secondary">
             {isAuthenticated ? '✅ LOGGED IN' : '❌ NOT LOGGED IN'}
           </span>
@@ -68,7 +68,7 @@ const Header: React.FC = () => {
 
       {/* Collapsible mobile/tablet menu (991px and smaller) */}
       {menuOpen && (
-        <div className="bg-dark d-lg-none">
+        <div className="bg-dark d-lg-none border-top border-bottom border-2 border-white">
           <ul className="nav flex-column text-center">
             <li className="nav-item">
               <Link to="/" className="nav-link text-white" onClick={closeMenu}>
@@ -95,7 +95,7 @@ const Header: React.FC = () => {
                 </li>
               </>
             ) : (
-              <li className="nav-item">
+              <li className="nav-item" id="last-nav">
                 <Link to="/login" className="nav-link text-white" onClick={closeMenu}>
                   🔐 Login
                 </Link>
