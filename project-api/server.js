@@ -34,12 +34,20 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:5173',
+      'https://boozybearsstattracker.web.app'
+    ];
+
+    if (origin && allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
-app.use(helmet());
-app.use(morgan('dev'));
-app.use(bodyParser.json());
 
 app.use(session({
   secret: 'secret',
