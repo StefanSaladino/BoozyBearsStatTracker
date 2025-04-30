@@ -16,47 +16,43 @@ const highlightRouter = require('./routes/highlights');
 
 const { initGridFS } = require('./middleware/gridFS');
 
-// Auth middleware
-const {
-  loginLimiter,
-  bruteForce,
-  requireAdmin,
-  authenticate,
-  logout
-} = require('./middleware/authMiddleware');
-
-// Load Admin model
 const Admin = require('./models/admin');
 
 dotenv.config();
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    const allowedOrigins = [
-      'http://localhost:5173',
-      'https://boozybearsstattracker.web.app'
-    ];
+// CORS setup
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://boozybearsstattracker.web.app',
+];
 
-    if (origin && allowedOrigins.includes(origin)) {
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
 }));
 
+// Middleware setup — make sure bodyParser comes BEFORE session
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(bodyParser.json());
+
+// Session setup
 app.use(session({
-  secret: 'secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   },
 }));
 
@@ -74,8 +70,7 @@ mongoose.connect(globals.ConnectionString.MongoDB)
   .catch((err) => console.error('❌ MongoDB error:', err));
 
 const conn = mongoose.connection;
-
-let upload; // Will be set after DB is open
+let upload;
 
 conn.once('open', () => {
   console.log('📡 Mongo connected');
@@ -98,25 +93,25 @@ conn.once('open', () => {
 
   upload = multer({ storage });
 
-  // Mount routes
+  // Routes
   app.use('/players', playerRouter(upload));
   app.use('/', authRouter);
-  app.use('/api/videos', highlightRouter(upload)); // Highlight video routes
+  app.use('/api/videos', highlightRouter(upload));
+
+  app.get('/auth/status', (req, res) => {
+    if (req.isAuthenticated()) {
+      res.status(200).json({ message: 'Authenticated' });
+    } else {
+      res.status(401).json({ message: 'Not authenticated' });
+    }
+  });
+
+  app.get('/', (req, res) => {
+    res.send('🏒 Men\'s League Hockey Stats API is live');
+  });
 
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-});
-
-app.get('/auth/status', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.status(200).json({ message: 'Authenticated' });
-  } else {
-    res.status(401).json({ message: 'Not authenticated' });
-  }
-});
-
-app.get('/', (req, res) => {
-  res.send('🏒 Men\'s League Hockey Stats API is live');
 });
 
 module.exports = { app, conn };

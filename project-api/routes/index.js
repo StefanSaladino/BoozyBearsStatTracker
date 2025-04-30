@@ -38,7 +38,7 @@ router.post('/register', async (req, res, next) => {
 });
 
 // LOGIN admin
-router.post('/login', loginLimiter, passport.authenticate('local'), (req, res) => {
+router.post('/login', /*loginLimiter*/ passport.authenticate('local'), (req, res) => {
   res.status(200).json({ message: 'Logged in successfully', user: req.user.email });
 });
 
