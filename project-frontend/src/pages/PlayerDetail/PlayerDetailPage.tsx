@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../../api';
+import '../PlayerDetail/PlayerDetail.css';
 
 type Highlight = {
   _id: string;
-  filename: string;
+  youtubeUrl: string;
   uploadedAt: string;
   description: string;
   gameDate: string;
@@ -21,7 +22,7 @@ type Player = {
   points?: number;
   wins?: number;
   goalsAgainstAverage?: number;
-  shutouts?: number,
+  shutouts?: number;
   highlightVideos: Highlight[];
 };
 
@@ -57,11 +58,13 @@ const PlayerDetailPage: React.FC = () => {
       </div>
 
       {/* Stat Bar */}
-      <div className="bg-light border rounded shadow-sm p-3 mb-5">
-        <h4 className="mb-3 border-bottom pb-2 text-primary">Player Stats</h4>
-        <div className="d-flex flex-wrap justify-content-between text-center">
-          <StatItem label="Games Played" value={player.gamesPlayed} />
+      <div className="stat-bar bg-light border rounded shadow-sm p-3 mb-5">
+        <h4 className="mb-3 border-bottom pb-2 text-primary text-start">
+          {player.name}
+        </h4>
 
+        <div className="stat-item-container">
+          <StatItem label="Games Played" value={player.gamesPlayed} />
           {player.position === 'Skater' && (
             <>
               <StatItem label="Goals" value={player.goals} />
@@ -69,7 +72,6 @@ const PlayerDetailPage: React.FC = () => {
               <StatItem label="Points" value={player.points} />
             </>
           )}
-
           {player.position === 'Goalie' && (
             <>
               <StatItem label="Wins" value={player.wins} />
@@ -88,13 +90,14 @@ const PlayerDetailPage: React.FC = () => {
             {player.highlightVideos.map((video) => (
               <div className="col-md-6 col-lg-4" key={video._id}>
                 <div className="card h-100 border-0 shadow rounded">
-                  <video className="card-img-top rounded-top" controls>
-                    <source
-                      src={`http://localhost:3000/api/videos/${video.filename}`}
-                      type="video/mp4"
-                    />
-                    Your browser does not support the video tag.
-                  </video>
+                  <div className="ratio ratio-16x9">
+                    <iframe
+                      className="card-img-top rounded-top"
+                      src={convertYouTubeUrlToEmbed(video.youtubeUrl)}
+                      title="Highlight video"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
                   <div className="card-body bg-white">
                     <p className="card-text mb-2 text-dark">
                       <strong>Description:</strong> {video.description}
@@ -115,15 +118,21 @@ const PlayerDetailPage: React.FC = () => {
   );
 };
 
-// Reusable stat item component with colored labels and dividers
+// Reusable stat item
 const StatItem: React.FC<{ label: string; value?: number }> = ({ label, value }) => (
-  <div className="flex-grow-1 px-3 border-end last:border-end-0">
-    <div className="text-uppercase fw-semibold text-info small">{label}</div>
-    <div className="fs-5 fw-bold text-dark">
+  <div className="stat-item">
+    <span className="stat-label">{label}:</span>{' '}
+    <span className="stat-value">
       {value !== undefined ? (label === 'GAA' ? value.toFixed(2) : value) : '—'}
-    </div>
+    </span>
   </div>
 );
 
+// Converts a standard YouTube URL to an embeddable one
+function convertYouTubeUrlToEmbed(url: string): string {
+  const regex = /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/))([\w-]{11})/;
+  const match = url.match(regex);
+  return match ? `https://www.youtube.com/embed/${match[1]}` : '';
+}
 
 export default PlayerDetailPage;

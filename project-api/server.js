@@ -5,31 +5,25 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
-const multer = require('multer');
 const session = require('express-session');
 const passport = require('passport');
-
 const globals = require('./configs/globals');
 const playerRouter = require('./routes/players');
 const authRouter = require('./routes/index');
 const highlightRouter = require('./routes/highlights');
-
-const { initGridFS } = require('./middleware/gridFS');
-
 const Admin = require('./models/admin');
 
 dotenv.config();
 
 const app = express();
 
-// CORS setup
 const allowedOrigins = [
   'http://localhost:5173',
   'https://boozybearsstattracker.web.app',
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
+  origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -39,12 +33,10 @@ app.use(cors({
   credentials: true,
 }));
 
-// Middleware setup — make sure bodyParser comes BEFORE session
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-// Session setup
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -56,7 +48,6 @@ app.use(session({
   },
 }));
 
-// Passport setup
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -64,39 +55,17 @@ passport.use(Admin.createStrategy());
 passport.serializeUser(Admin.serializeUser());
 passport.deserializeUser(Admin.deserializeUser());
 
-// MongoDB connection
 mongoose.connect(globals.ConnectionString.MongoDB)
   .then(() => console.log('✅ MongoDB connected'))
   .catch((err) => console.error('❌ MongoDB error:', err));
 
 const conn = mongoose.connection;
-let upload;
-
 conn.once('open', () => {
   console.log('📡 Mongo connected');
-  initGridFS(conn);
 
-  const { GridFsStorage } = require('multer-gridfs-storage');
-  const storage = new GridFsStorage({
-    url: globals.ConnectionString.MongoDB,
-    options: { useNewUrlParser: true, useUnifiedTopology: true },
-    file: (req, file) => ({
-      filename: `${Date.now()}-${file.originalname}`,
-      bucketName: 'highlights',
-      metadata: {
-        description: req.body.description,
-        gameDate: req.body.gameDate,
-      },
-      contentType: file.mimetype,
-    }),
-  });
-
-  upload = multer({ storage });
-
-  // Routes
-  app.use('/players', playerRouter(upload));
+  app.use('/players', playerRouter);
   app.use('/', authRouter);
-  app.use('/api/videos', highlightRouter(upload));
+  app.use('/api/videos', highlightRouter);
 
   app.get('/auth/status', (req, res) => {
     if (req.isAuthenticated()) {

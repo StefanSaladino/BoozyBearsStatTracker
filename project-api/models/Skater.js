@@ -2,11 +2,13 @@
 const Player = require('./Player');
 const mongoose = require('mongoose');
 
+// Highlight schema now supports both file uploads and YouTube URLs
 const highlightSchema = new mongoose.Schema({
-  filename: String,
-  uploadedAt: { type: Date, default: Date.now },
+  filename: String,            // existing field for storing uploaded filenames
+  youtubeUrl: String,          // new field for YouTube links
   description: String,
-  gameDate: Date
+  gameDate: Date,
+  uploadedAt: { type: Date, default: Date.now }
 });
 
 // Define Skater schema with stored `points`

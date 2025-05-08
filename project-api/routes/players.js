@@ -75,30 +75,6 @@ module.exports = (upload) => {
       res.status(500).json({ error: err.message });
     }
   });
-  
-
-  // Upload highlight
-  router.post("/:id/highlight", authenticate, upload.single("video"), async (req, res) => {
-    try {
-      const player = await Player.findById(req.params.id);
-      if (!player) return res.status(404).json({ message: "Player not found" });
-
-      if (!req.file) return res.status(400).json({ message: "No video uploaded" });
-
-      const metadata = {
-        filename: req.file.filename,
-        gameDate: req.body.gameDate,
-        description: req.body.description,
-      };
-
-      player.highlightVideos.push(metadata);
-      await player.save();
-
-      res.json(player);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
 
   return router;
 };

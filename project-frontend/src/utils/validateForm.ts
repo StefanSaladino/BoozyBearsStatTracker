@@ -1,4 +1,4 @@
-// src/utils/validateForms.ts
+// src/utils/validateForm.ts
 export function validatePlayerForm(form: any, position: 'Skater' | 'Goalie') {
   const errors: Record<string, string> = {};
 
@@ -37,22 +37,36 @@ export function validatePlayerForm(form: any, position: 'Skater' | 'Goalie') {
 }
 
   
-  export function validateHighlightForm(form: any) {
-    const errors: Record<string, string> = {};
-    const today = new Date();
-    const submittedDate = new Date(form.gameDate);
-  
-    if (!form.selectedPlayer) errors.selectedPlayer = 'Please select a player';
-    if (!form.file) errors.file = 'A video file is required';
-    if (!form.description.trim()) errors.description = 'Description is required';
-    if (!form.gameDate) {
-      errors.gameDate = 'Game date is required';
-    } else if (submittedDate > today) {
-      errors.gameDate = 'Game date must not be after today';
-    }
-  
-    return errors;
+
+export function validateHighlightForm(data: {
+  selectedPlayer: string;
+  youtubeUrl: string;
+  description: string;
+  gameDate: string;
+}) {
+  const errors: Record<string, string> = {};
+
+  if (!data.selectedPlayer) {
+    errors.selectedPlayer = "Player is required.";
   }
+
+  if (
+    !data.youtubeUrl ||
+    !/^https:\/\/(www\.)?youtube\.com\/watch\?v=/.test(data.youtubeUrl)
+  ) {
+    errors.youtubeUrl = "Valid YouTube URL is required.";
+  }
+
+  if (!data.description.trim()) {
+    errors.description = "Description is required.";
+  }
+
+  if (!data.gameDate || new Date(data.gameDate) > new Date()) {
+    errors.gameDate = "Valid game date is required (not in the future).";
+  }
+
+  return errors;
+}
   
 //Validation specifically for editing existing highlight (no file/player needed)
 export function validateHighlightEditForm(form: { gameDate: string; description: string }) {

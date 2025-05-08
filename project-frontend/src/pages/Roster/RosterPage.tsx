@@ -114,64 +114,60 @@ function RosterPage() {
         <img src={mainLogo} alt="Boozy Bears Logo" />
         <h1>Boozy Bears Roster</h1>
       </div>
-  
+
       <h2>Skaters</h2>
-      <div className="table-container">
-        <table className="players-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th className="sortable" onClick={() => handleSkaterSort('name')}>Name</th>
-              <th className="sortable" onClick={() => handleSkaterSort('gamesPlayed')}>GP</th>
-              <th className="sortable" onClick={() => handleSkaterSort('goals')}>G</th>
-              <th className="sortable" onClick={() => handleSkaterSort('assists')}>A</th>
-              <th className="sortable" onClick={() => handleSkaterSort('points')}>P</th>
+      <table className="players-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th className="sortable" onClick={() => handleSkaterSort('name')}>Name</th>
+            <th className="sortable" onClick={() => handleSkaterSort('gamesPlayed')}>GP</th>
+            <th className="sortable" onClick={() => handleSkaterSort('goals')}>G</th>
+            <th className="sortable" onClick={() => handleSkaterSort('assists')}>A</th>
+            <th className="sortable" onClick={() => handleSkaterSort('points')}>P</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortPlayers(skaters, sortConfigSkater).map(player => (
+            <tr key={player._id}>
+              <td>{player.jerseyNumber}</td>
+              <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
+              <td>{player.gamesPlayed}</td>
+              <td>{player.goals ?? 0}</td>
+              <td>{player.assists ?? 0}</td>
+              <td>{player.points ?? 0}</td>
             </tr>
-          </thead>
-          <tbody>
-            {sortPlayers(skaters, sortConfigSkater).map(player => (
-              <tr key={player._id}>
-                <td>{player.jerseyNumber}</td>
-                <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
-                <td>{player.gamesPlayed}</td>
-                <td>{player.goals ?? 0}</td>
-                <td>{player.assists ?? 0}</td>
-                <td>{player.points ?? 0}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-  
+          ))}
+        </tbody>
+      </table>
+
       <h2>Goalies</h2>
-      <div className="table-container">
-        <table className="players-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th className="sortable" onClick={() => handleGoalieSort('name')}>Name</th>
-              <th className="sortable" onClick={() => handleGoalieSort('gamesPlayed')}>GP</th>
-              <th className="sortable" onClick={() => handleGoalieSort('wins')}>W</th>
-              <th className="sortable" onClick={() => handleGoalieSort('goalsAgainstAverage')}>GAA</th>
-              <th className="sortable" onClick={() => handleGoalieSort('shutouts')}>SO</th>
+      <table className="players-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th className="sortable" onClick={() => handleGoalieSort('name')}>Name</th>
+            <th className="sortable" onClick={() => handleGoalieSort('gamesPlayed')}>GP</th>
+            <th className="sortable" onClick={() => handleGoalieSort('wins')}>W</th>
+            <th className="sortable" onClick={() => handleGoalieSort('goalsAgainstAverage')}>GAA</th>
+            <th className="sortable" onClick={() => handleGoalieSort('shutouts')}>SO</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortPlayers(goalies, sortConfigGoalie).map(player => (
+            <tr key={player._id}>
+              <td>{player.jerseyNumber}</td>
+              <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
+              <td>{player.gamesPlayed}</td>
+              <td>{player.wins ?? 0}</td>
+              <td>{player.goalsAgainstAverage?.toFixed(2) ?? '0.00' ?? 'N/A'}</td>
+              <td>{player.shutouts ?? 0}</td>
             </tr>
-          </thead>
-          <tbody>
-            {sortPlayers(goalies, sortConfigGoalie).map(player => (
-              <tr key={player._id}>
-                <td>{player.jerseyNumber}</td>
-                <td><Link to={`/players/${player._id}`}>{player.name}</Link></td>
-                <td>{player.gamesPlayed}</td>
-                <td>{player.wins ?? 0}</td>
-                <td>{player.goalsAgainstAverage?.toFixed(2) ?? '0.00' ?? 'N/A'}</td>
-                <td>{player.shutouts ?? 0}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
-  );  
+  );
 }
 
 export default RosterPage;

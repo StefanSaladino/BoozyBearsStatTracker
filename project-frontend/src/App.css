@@ -29,7 +29,7 @@ header .container h1 {
 }
 
 /* Nav Menu - Extra padding ONLY when collapsed */
-@media (max-width: 768px) {
+@media (max-width: 991px) {
   #last-nav{
     border-bottom: 0 !important;
   }

@@ -63,7 +63,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       <div className="boozy-info">
-        <div className="carousel-container w-75 position-relative">
+        <div className="carousel-container position-relative">
           <div className="carousel-inner-custom">
             <div
               className={`carousel-item-custom ${
@@ -138,7 +138,10 @@ const LandingPage: React.FC = () => {
             ❯
           </button>
         </div>
+        <span className="underline" aria-hidden="true"></span>
       </div>
+
+      
 
       <div className="countdown">
         <GameCountdown />

@@ -1,3 +1,5 @@
+// src/pages/EditHighlights/EditHighlightsPage.tsx
+
 import React, { useEffect, useState } from "react";
 import axios from "../../api";
 import { validateHighlightEditForm } from "../../utils/validateForm";
@@ -5,8 +7,8 @@ import { validateHighlightEditForm } from "../../utils/validateForm";
 interface Highlight {
   playerId: string;
   playerName: string;
-  filename: string;
   highlightId: string;
+  youtubeUrl: string;
   gameDate: string;
   description: string;
 }
@@ -17,22 +19,18 @@ const EditHighlightsPage: React.FC = () => {
     null
   );
   const [editData, setEditData] = useState<{
+    youtubeUrl: string;
     gameDate: string;
     description: string;
-  }>({ gameDate: "", description: "" });
+  }>({ youtubeUrl: "", gameDate: "", description: "" });
   const [editErrors, setEditErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchHighlights = async () => {
       try {
-        const res = await axios.get("/api/videos");
-        if (Array.isArray(res.data)) {
-          setHighlights(res.data);
-        } else {
-          console.warn("Highlights data not array");
-          setHighlights([]);
-        }
+        const res = await axios.get<Highlight[]>("/api/videos");
+        setHighlights(res.data);
       } catch (err) {
         console.error("Failed to load highlights", err);
         setHighlights([]);
@@ -44,28 +42,23 @@ const EditHighlightsPage: React.FC = () => {
     fetchHighlights();
   }, []);
 
-  const handleEditClick = (highlight: Highlight) => {
-    setEditingHighlightId(highlight.highlightId);
+  const handleEditClick = (h: Highlight) => {
+    setEditingHighlightId(h.highlightId);
     setEditData({
-      gameDate: highlight.gameDate.slice(0, 10),
-      description: highlight.description,
+      youtubeUrl: h.youtubeUrl,
+      gameDate: h.gameDate.slice(0, 10),
+      description: h.description,
     });
     setEditErrors({});
   };
 
   const handleCancelEdit = () => {
     setEditingHighlightId(null);
-    setEditData({ gameDate: "", description: "" });
+    setEditData({ youtubeUrl: "", gameDate: "", description: "" });
     setEditErrors({});
   };
 
-  const handleSaveEdit = async (highlight: Highlight) => {
-    console.log("Save button clicked", editData);
-
-    // Log the playerId and highlightId
-    console.log("Player ID:", highlight.playerId);
-    console.log("Highlight ID:", highlight.highlightId);
-
+  const handleSaveEdit = async (h: Highlight) => {
     const errors = validateHighlightEditForm(editData);
     if (Object.keys(errors).length > 0) {
       setEditErrors(errors);
@@ -73,168 +66,177 @@ const EditHighlightsPage: React.FC = () => {
     }
 
     try {
+      const payload = {
+        youtubeUrl: editData.youtubeUrl,
+        description: editData.description,
+        gameDate: editData.gameDate,
+      };
       const response = await axios.put(
-        `/api/videos/${highlight.playerId}/highlight/${highlight.highlightId}`,
-        {
-          description: editData.description,
-          gameDate: editData.gameDate, // Already in YYYY-MM-DD format
-        }
+        `/api/videos/${h.playerId}/highlight/${h.highlightId}`,
+        payload
       );
-
-      if (
-        response.data &&
-        response.data.message === "Highlight updated successfully"
-      ) {
+      if (response.data.message === "Highlight updated successfully") {
         setHighlights((prev) =>
-          prev.map((h) =>
-            h.highlightId === highlight.highlightId
-              ? {
-                  ...h,
-                  gameDate: editData.gameDate,
-                  description: editData.description,
-                }
-              : h
+          prev.map((hl) =>
+            hl.highlightId === h.highlightId
+              ? { ...hl, ...payload }
+              : hl
           )
         );
         handleCancelEdit();
       } else {
-        console.error("Unexpected response from backend:", response.data);
+        console.error("Unexpected response:", response.data);
       }
     } catch (err) {
       console.error("Failed to save highlight", err);
     }
   };
 
-  const handleDelete = async (highlight: Highlight) => {
-    if (!window.confirm("Are you sure you want to delete this highlight?")) return;
+  const handleDelete = async (h: Highlight) => {
+    if (!window.confirm("Are you sure you want to delete this highlight?"))
+      return;
     try {
       await axios.delete(
-        `/api/videos/${highlight.playerId}/highlight/${highlight.highlightId}`
+        `/api/videos/${h.playerId}/highlight/${h.highlightId}`
       );
       setHighlights((prev) =>
-        prev.filter((h) => h.highlightId !== highlight.highlightId)
+        prev.filter((hl) => hl.highlightId !== h.highlightId)
       );
     } catch (err) {
       console.error("Failed to delete highlight", err);
     }
   };
 
+  if (loading) {
+    return <p className="text-center my-5 text-primary">Loading highlights...</p>;
+  }
+
+  if (!highlights.length) {
+    return <p className="text-center my-5 text-muted fst-italic">No highlights available.</p>;
+  }
+
   return (
     <div className="container my-5">
       <h2 className="fw-bold text-primary mb-4">Edit Highlight Videos</h2>
 
-      {loading ? (
-        <p className="text-center text-primary">Loading highlights...</p>
-      ) : highlights.length === 0 ? (
-        <p className="text-center text-muted fst-italic">
-          No highlights available.
-        </p>
-      ) : (
-        <div className="row g-4">
-          {highlights.map((h) => (
+      <div className="row g-4">
+        {highlights.map((h) => {
+          // build embed URL
+          const embedUrl = h.youtubeUrl.includes("watch?v=")
+            ? h.youtubeUrl.replace("watch?v=", "embed/")
+            : h.youtubeUrl.replace("youtu.be/", "youtube.com/embed/");
+
+          return (
             <div className="col-md-6 col-lg-4" key={h.highlightId}>
               <div className="card h-100 border-0 shadow rounded">
-                <video className="card-img-top rounded-top" controls>
-                  <source
-                    src={`http://localhost:3000/api/videos/${h.filename}`}
-                    type="video/mp4"
-                  />
-                  Your browser does not support the video tag.
-                </video>
-                <div className="card-body bg-white">
-                  <h5 className="card-title text-dark">{h.playerName}</h5>
+                {editingHighlightId === h.highlightId ? (
+                  <div className="card-body">
+                    {/* YouTube URL */}
+                    <div className="mb-2">
+                      <label className="form-label small text-muted">YouTube URL</label>
+                      <input
+                        type="url"
+                        className={`form-control ${editErrors.youtubeUrl ? "is-invalid" : ""}`}
+                        value={editData.youtubeUrl}
+                        onChange={(e) =>
+                          setEditData({ ...editData, youtubeUrl: e.target.value })
+                        }
+                      />
+                      {editErrors.youtubeUrl && (
+                        <div className="invalid-feedback">{editErrors.youtubeUrl}</div>
+                      )}
+                    </div>
 
-                  {editingHighlightId === h.highlightId ? (
-                    <>
-                      <div className="mb-2">
-                        <label className="form-label fw-semibold small text-muted">
-                          Game Date
-                        </label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          value={editData.gameDate}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              gameDate: e.target.value,
-                            })
-                          }
-                        />
-                        {editErrors.gameDate && (
-                          <div className="text-danger small">
-                            {editErrors.gameDate}
-                          </div>
-                        )}
-                      </div>
+                    {/* Game Date */}
+                    <div className="mb-2">
+                      <label className="form-label small text-muted">Game Date</label>
+                      <input
+                        type="date"
+                        className={`form-control ${editErrors.gameDate ? "is-invalid" : ""}`}
+                        value={editData.gameDate}
+                        onChange={(e) =>
+                          setEditData({ ...editData, gameDate: e.target.value })
+                        }
+                      />
+                      {editErrors.gameDate && (
+                        <div className="invalid-feedback">{editErrors.gameDate}</div>
+                      )}
+                    </div>
 
-                      <div className="mb-2">
-                        <label className="form-label fw-semibold small text-muted">
-                          Description
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={editData.description}
-                          onChange={(e) =>
-                            setEditData({
-                              ...editData,
-                              description: e.target.value,
-                            })
-                          }
-                        />
-                        {editErrors.description && (
-                          <div className="text-danger small">
-                            {editErrors.description}
-                          </div>
-                        )}
-                      </div>
+                    {/* Description */}
+                    <div className="mb-2">
+                      <label className="form-label small text-muted">Description</label>
+                      <input
+                        type="text"
+                        className={`form-control ${editErrors.description ? "is-invalid" : ""}`}
+                        value={editData.description}
+                        onChange={(e) =>
+                          setEditData({ ...editData, description: e.target.value })
+                        }
+                      />
+                      {editErrors.description && (
+                        <div className="invalid-feedback">{editErrors.description}</div>
+                      )}
+                    </div>
 
-                      <div className="d-flex justify-content-between mt-3">
-                        <button
-                          type="button"
-                          className="btn btn-success btn-sm"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleSaveEdit(h);
-                          }}>
-                          Save
-                        </button>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={handleCancelEdit}>
-                          Cancel
-                        </button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
+                    {/* Save/Cancel */}
+                    <div className="d-flex justify-content-between mt-3">
+                      <button
+                        className="btn btn-success btn-sm"
+                        onClick={() => handleSaveEdit(h)}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Embedded YouTube */}
+                    <div className="ratio ratio-16x9">
+                      <iframe
+                        className="rounded-top"
+                        src={embedUrl}
+                        title="Highlight Video"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                    <div className="card-body bg-white">
+                      <h5 className="card-title text-dark">{h.playerName}</h5>
                       <p className="card-text text-dark mb-1">
                         <strong>Game Date:</strong> {h.gameDate.slice(0, 10)}
                       </p>
-                      <p className="card-text text-muted mb-2">
+                      <p className="card-text text-muted">
                         <strong>Description:</strong> {h.description}
                       </p>
                       <div className="d-flex justify-content-between">
                         <button
                           className="btn btn-primary btn-sm"
-                          onClick={() => handleEditClick(h)}>
+                          onClick={() => handleEditClick(h)}
+                        >
                           Edit
                         </button>
                         <button
                           className="btn btn-danger btn-sm"
-                          onClick={() => handleDelete(h)}>
+                          onClick={() => handleDelete(h)}
+                        >
                           Delete
                         </button>
                       </div>
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 };
