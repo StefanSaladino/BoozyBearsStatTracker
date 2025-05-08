@@ -8,6 +8,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const passport = require("passport");
+const MongoStore = require("connect-mongo");
 
 const globals = require("./configs/globals");
 const playerRouter = require("./routes/players");
@@ -20,12 +21,13 @@ dotenv.config();
 const app = express();
 
 // —————————————————————————————————————————————
-// 1) CORS + security
+// 1) CORS + Security Middleware
 // —————————————————————————————————————————————
 const allowedOrigins = [
   "http://localhost:5173",
   "https://boozybearsstattracker.web.app",
 ];
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -38,6 +40,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
@@ -50,6 +53,10 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: globals.ConnectionString.MongoDB,
+      ttl: 24 * 60 * 60, // 1 day
+    }),
     cookie: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -57,6 +64,7 @@ app.use(
     },
   })
 );
+
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -65,7 +73,7 @@ passport.serializeUser(Admin.serializeUser());
 passport.deserializeUser(Admin.deserializeUser());
 
 // —————————————————————————————————————————————
-// 3) Mongo + listen
+// 3) MongoDB connection
 // —————————————————————————————————————————————
 mongoose
   .connect(globals.ConnectionString.MongoDB, {
@@ -74,13 +82,15 @@ mongoose
   })
   .then(() => {
     console.log("✅ MongoDB connected");
-
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   });
 
+// —————————————————————————————————————————————
+// 4) Routes
+// —————————————————————————————————————————————
 app.use("/players", playerRouter);
 app.use("/", authRouter);
 app.use("/api/videos", highlightRouter);
@@ -97,6 +107,9 @@ app.get("/", (req, res) => {
   res.send("🏒 Men's League Hockey Stats API is live");
 });
 
+// —————————————————————————————————————————————
+// 5) Start Server
+// —————————————————————————————————————————————
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
