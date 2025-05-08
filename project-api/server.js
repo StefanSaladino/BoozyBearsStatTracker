@@ -65,16 +65,6 @@ app.use('/players', playerRouter);
 app.use('/', authRouter);
 app.use('/api/videos', highlightRouter);
 
-app.get('/auth/status', (req, res) => {
-  res
-    .status(req.isAuthenticated() ? 200 : 401)
-    .json({ message: req.isAuthenticated() ? 'Authenticated' : 'Not authenticated' });
-});
-
-app.get('/', (req, res) => {
-  res.send("🏒 Men's League Hockey Stats API is live");
-});
-
 // —————————————————————————————————————————————
 // 4) Mongo + listen
 // —————————————————————————————————————————————
@@ -91,5 +81,15 @@ mongoose.connect(globals.ConnectionString.MongoDB, {
     console.error('❌ MongoDB connection error:', err);
     process.exit(1);
   });
+
+  app.get('/auth/status', (req, res) => {
+    res
+      .status(req.isAuthenticated() ? 200 : 401)
+      .json({ message: req.isAuthenticated() ? 'Authenticated' : 'Not authenticated' });
+  });
+  
+  app.get('/', (req, res) => {
+    res.send("🏒 Men's League Hockey Stats API is live");
+  });  
 
 module.exports = app;
