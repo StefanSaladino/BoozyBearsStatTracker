@@ -37,10 +37,10 @@ router.get('/', async (req, res) => {
 // ──────────────────────────────────
 // Get single player by ID
 // ──────────────────────────────────
-router.get('/:id', async (req, res) => {
+router.get("/:id", async (req, res) => {
   try {
-    const player = await Player.findById(req.params.id).lean();
-    if (!player) return res.status(404).json({ message: 'Player not found' });
+    const player = await Player.findById(req.params.id);
+    if (!player) return res.status(404).json({ message: "Player not found" });
     res.json(player);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -50,13 +50,15 @@ router.get('/:id', async (req, res) => {
 // ──────────────────────────────────
 // Update player
 // ──────────────────────────────────
-router.put('/:id', authenticate, async (req, res) => {
+router.put("/:id", async (req, res) => {
   try {
     const base = await Player.findById(req.params.id);
-    if (!base) return res.status(404).json({ message: 'Player not found' });
+    if (!base) return res.status(404).json({ message: "Player not found" });
 
-    const Model = base.position === 'Skater' ? Skater : Goalie;
+    const Model = base.position === "Skater" ? Skater : Goalie;
     const doc = await Model.findById(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Player not found" });
+
     Object.assign(doc, req.body);
     const updated = await doc.save();
     res.json(updated);
