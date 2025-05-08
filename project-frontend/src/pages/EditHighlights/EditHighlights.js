@@ -84,7 +84,7 @@ const EditHighlightsPage = () => {
         return _jsx("p", { className: "text-center my-5 text-muted fst-italic", children: "No highlights available." });
     }
     return (_jsxs("div", { className: "container my-5", children: [_jsx("h2", { className: "fw-bold text-primary mb-4", children: "Edit Highlight Videos" }), _jsx("div", { className: "row g-4", children: highlights.map((h) => {
-                    // convert YouTube URL to embed URL
+                    // build embed URL
                     const embedUrl = h.youtubeUrl.includes("watch?v=")
                         ? h.youtubeUrl.replace("watch?v=", "embed/")
                         : h.youtubeUrl.replace("youtu.be/", "youtube.com/embed/");
