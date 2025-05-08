@@ -83,7 +83,7 @@ router.delete('/:id', authenticate, async (req, res) => {
 // ──────────────────────────────────
 // Add a YouTube‐based highlight to a player
 // ──────────────────────────────────
-router.post('/:id/highlight', authenticate, async (req, res) => {
+router.post('/:id/highlight', async (req, res) => {
   try {
     const { youtubeUrl, description, gameDate } = req.body;
     const player = await Player.findById(req.params.id);
