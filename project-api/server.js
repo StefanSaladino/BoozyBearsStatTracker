@@ -20,9 +20,9 @@ dotenv.config();
 
 const app = express();
 
-// —————————————————————————————————————————————
-// 1) CORS + Security Middleware
-// —————————————————————————————————————————————
+// ─────────────────────────────────────────────
+// 1. CORS + Security Middleware
+// ─────────────────────────────────────────────
 const allowedOrigins = [
   "http://localhost:5173",
   "https://boozybearsstattracker.web.app",
@@ -31,9 +31,11 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log("🌐 Incoming request from origin:", origin);
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn("🚫 Origin not allowed by CORS:", origin);
         callback(new Error("Not allowed by CORS"));
       }
     },
@@ -45,9 +47,13 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
 
-// —————————————————————————————————————————————
-// 2) Sessions & Passport
-// —————————————————————————————————————————————
+// ─────────────────────────────────────────────
+// 2. Sessions & Passport
+// ─────────────────────────────────────────────
+const isProduction = process.env.NODE_ENV === "production";
+console.log("🔧 Environment:", process.env.NODE_ENV);
+console.log("🍪 Cookie Settings → secure:", isProduction, "| sameSite:", isProduction ? "none" : "lax");
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -59,11 +65,21 @@ app.use(
     }),
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
     },
   })
 );
+
+app.use((req, res, next) => {
+  if (req.session) {
+    console.log("🧩 Session middleware initialized.");
+    console.log("📦 Session ID:", req.sessionID);
+  } else {
+    console.warn("⚠️ Session not initialized.");
+  }
+  next();
+});
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -72,30 +88,26 @@ passport.use(Admin.createStrategy());
 passport.serializeUser(Admin.serializeUser());
 passport.deserializeUser(Admin.deserializeUser());
 
-// —————————————————————————————————————————————
-// 3) MongoDB connection
-// —————————————————————————————————————————————
+// ─────────────────────────────────────────────
+// 3. MongoDB Connection (no deprecated opts)
+// ─────────────────────────────────────────────
 mongoose
-  .connect(globals.ConnectionString.MongoDB, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log("✅ MongoDB connected");
-  })
+  .connect(globals.ConnectionString.MongoDB)
+  .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   });
 
-// —————————————————————————————————————————————
-// 4) Routes
-// —————————————————————————————————————————————
+// ─────────────────────────────────────────────
+// 4. Routes
+// ─────────────────────────────────────────────
 app.use("/players", playerRouter);
 app.use("/", authRouter);
 app.use("/api/videos", highlightRouter);
 
 app.get("/auth/status", (req, res) => {
+  console.log("🔐 /auth/status — isAuthenticated:", req.isAuthenticated());
   if (req.isAuthenticated()) {
     res.status(200).json({ message: "Authenticated" });
   } else {
@@ -107,9 +119,9 @@ app.get("/", (req, res) => {
   res.send("🏒 Men's League Hockey Stats API is live");
 });
 
-// —————————————————————————————————————————————
-// 5) Start Server
-// —————————————————————————————————————————————
+// ─────────────────────────────────────────────
+// 5. Start Server
+// ─────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 
