@@ -38,9 +38,18 @@ router.post('/register', async (req, res, next) => {
 });
 
 // LOGIN admin
-router.post('/login', /*loginLimiter*/ passport.authenticate('local'), (req, res) => {
-  res.status(200).json({ message: 'Logged in successfully', user: req.user.email });
+router.post('/login', passport.authenticate('local'), (req, res, next) => {
+  // Ensure session is saved before responding
+  req.session.save((err) => {
+    if (err) {
+      console.error("❌ Error saving session:", err);
+      return next(err);
+    }
+    console.log("✅ Session saved for user:", req.user.email);
+    res.status(200).json({ message: 'Logged in successfully', user: req.user.email });
+  });
 });
+
 
 // LOGOUT admin
 router.post('/logout', logout);
