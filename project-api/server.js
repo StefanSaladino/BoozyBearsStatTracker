@@ -1,5 +1,6 @@
 // server.js
 const express = require("express");
+app.set('trust proxy', 1);
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
