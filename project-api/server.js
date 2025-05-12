@@ -46,7 +46,7 @@ app.use(
 app.use(helmet());
 app.use(morgan("dev"));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // ─────────────────────────────────────────────
 // 2. Sessions & Passport
@@ -67,7 +67,7 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: true,
-      sameSite: none,
+      sameSite: "none",
     },
   })
 );
