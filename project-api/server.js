@@ -1,6 +1,5 @@
 // server.js
 const express = require("express");
-app.set('trust proxy', 1);
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -20,6 +19,7 @@ const Admin = require("./models/admin");
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1);
 
 // ─────────────────────────────────────────────
 // 1. CORS + Security Middleware
