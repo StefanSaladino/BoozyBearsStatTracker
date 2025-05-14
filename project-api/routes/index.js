@@ -56,7 +56,7 @@ router.post('/logout', logout);
 
 // SESSION CHECK — Protected route
 router.get('/admin-dashboard', authenticate, (req, res) => {
-  // res.status(200).json({ user: req.user.email });
+  res.status(200).json({ user: req.user.email });
 });
 
 module.exports = router;

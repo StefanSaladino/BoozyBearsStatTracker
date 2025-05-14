@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { validatePlayerForm } from "../../utils/validateForm";
 import "../AdminDashboard/AdminDashboard.css";
 const AdminDashboard = () => {
-    const { isAuthenticated } = useContext(AuthContext);
+    const { isAuthenticated, loading } = useContext(AuthContext);
     const [players, setPlayers] = useState([]);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({});
@@ -20,8 +20,12 @@ const AdminDashboard = () => {
                 .catch((err) => console.error("Error fetching players:", err));
         }
     }, [isAuthenticated]);
+    if (loading) {
+        // Optionally, render a loading spinner or placeholder while session is being checked
+        return _jsx("div", { children: "Loading..." });
+    }
     if (!isAuthenticated)
-        return _jsx(Navigate, { to: "/login" });
+        return _jsx(Navigate, { to: "/login" }); // Redirect if not authenticated
     const handleEdit = (player) => {
         setEditingId(player._id);
         setFormData({ ...player });

@@ -10,7 +10,7 @@ const loginLimiter = rateLimit({
 // Require login session
 const authenticate = (req, res, next) => {
   if (req.isAuthenticated()) return next();
-  return res.status(401).json({ message: 'Unauthorized' });
+  return res.redirect('/login');  // Redirect to the login page if not authenticated
 };
 
 // Logout handler

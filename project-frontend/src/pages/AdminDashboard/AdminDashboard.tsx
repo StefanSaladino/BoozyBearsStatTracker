@@ -19,7 +19,7 @@ interface Player {
 }
 
 const AdminDashboard: React.FC = () => {
-  const { isAuthenticated } = useContext(AuthContext);
+  const { isAuthenticated, loading } = useContext(AuthContext);
   const [players, setPlayers] = useState<Player[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<Player>>({});
@@ -35,7 +35,12 @@ const AdminDashboard: React.FC = () => {
     }
   }, [isAuthenticated]);
 
-  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (loading) {
+    // Optionally, render a loading spinner or placeholder while session is being checked
+    return <div>Loading...</div>;
+  }
+
+  if (!isAuthenticated) return <Navigate to="/login" />; // Redirect if not authenticated
 
   const handleEdit = (player: Player) => {
     setEditingId(player._id);
