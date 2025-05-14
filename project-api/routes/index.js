@@ -38,7 +38,7 @@ router.post('/register', async (req, res, next) => {
 });
 
 // LOGIN admin
-router.post('/login', passport.authenticate('local'), (req, res, next) => {
+router.post('/login', passport.authenticate('local'), loginLimiter, (req, res, next) => {
   // Ensure session is saved before responding
   req.session.save((err) => {
     if (err) {
@@ -56,7 +56,7 @@ router.post('/logout', logout);
 
 // SESSION CHECK — Protected route
 router.get('/admin-dashboard', authenticate, (req, res) => {
-  res.status(200).json({ user: req.user.email });
+  // res.status(200).json({ user: req.user.email });
 });
 
 module.exports = router;

@@ -116,6 +116,7 @@ function RosterPage() {
       </div>
 
       <h2>Skaters</h2>
+      <div className="table-container">
       <table className="players-table">
         <thead>
           <tr>
@@ -140,8 +141,10 @@ function RosterPage() {
           ))}
         </tbody>
       </table>
+      </div>
 
       <h2>Goalies</h2>
+      <div className="table-container">
       <table className="players-table">
         <thead>
           <tr>
@@ -166,6 +169,7 @@ function RosterPage() {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
