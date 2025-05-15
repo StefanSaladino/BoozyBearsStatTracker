@@ -29,7 +29,7 @@ const GameCountdown = () => {
       const diff = gameTime.getTime() - now.getTime();
 
       if (diff <= 0) {
-        findNextGame();
+        findNextGame(); // refresh for next game
         return;
       }
 
@@ -50,18 +50,27 @@ const GameCountdown = () => {
   }, [nextGame]);
 
   if (!nextGame) {
-    return <div className="countdown-container">No upcoming games!</div>;
+    return (
+      <div className="countdown-wrapper">
+        <div className="countdown-container">
+          <h2>No Games Scheduled</h2>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className='countdown-wrapper'>
-    <div className={`countdown-container ${isClose ? 'hype-mode' : ''}`}>
-      <h2>Next Game:</h2>
-      <p className="opponent"><span className='text-success fw-bold fs-1'>Boozy Bears</span> VS. <span className='text-danger fw-bold fs-1'>{nextGame.opponent}</span></p>
-      <p key={timeLeft} className="time-left slide-in">
-        {timeLeft}
-      </p>
-    </div>
+      <div className={`countdown-container ${isClose ? 'hype-mode' : ''}`}>
+        <h2>Next Game:</h2>
+        <p className="opponent">
+          <span className='text-success fw-bold fs-1'>Boozy Bears</span> VS.{' '}
+          <span className='text-danger fw-bold fs-1'>{nextGame.opponent}</span>
+        </p>
+        <p key={timeLeft} className="time-left slide-in">
+          {timeLeft}
+        </p>
+      </div>
     </div>
   );
 };

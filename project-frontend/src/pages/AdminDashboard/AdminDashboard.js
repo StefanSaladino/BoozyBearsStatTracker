@@ -21,7 +21,6 @@ const AdminDashboard = () => {
         }
     }, [isAuthenticated]);
     if (loading) {
-        // Optionally, render a loading spinner or placeholder while session is being checked
         return _jsx("div", { children: "Loading..." });
     }
     if (!isAuthenticated)

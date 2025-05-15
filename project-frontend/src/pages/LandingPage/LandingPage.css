@@ -187,7 +187,7 @@
     animation: slideGlideIn 0.8s ease-out;
 }
 
-@media (max-width: 991px) {
+@media (max-width: 767px) {
     .landing-section {
         min-height: 100vh;
         padding: 2em 1em;
@@ -276,5 +276,50 @@
 
     .boozy-card .card-text {
         font-size: 0.8rem;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .landing-section {
+        min-height: 60vh;
+    }
+
+    .landing-image {
+        flex: 1;
+        position: relative;
+        max-width: 25%;
+        display: flex;
+        justify-content: left;
+    }
+
+    .landing-image img {
+        max-width: 100%;
+        height: 60vh;
+    }
+
+    .boozy-card {
+        width: 90%;
+        height: auto;
+    }
+
+    .boozy-card iframe,
+    .boozy-card img {
+        max-height: 300px;
+        object-fit: cover;
+    }
+
+    .carousel-control-prev-custom,
+    .carousel-control-next-custom {
+        width: 10vh;
+        height: 10vh;
+        font-size: 2rem;
+    }
+
+    .carousel-control-prev-custom {
+        left: -50px;
+    }
+
+    .carousel-control-next-custom {
+        right: -50px;
     }
 }

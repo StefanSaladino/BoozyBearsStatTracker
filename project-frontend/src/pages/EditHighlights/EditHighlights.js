@@ -1,30 +1,44 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 // src/pages/EditHighlights/EditHighlightsPage.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "../../api";
 import { validateHighlightEditForm } from "../../utils/validateForm";
+import { AuthContext } from "../../context/AuthContext"; // Import the AuthContext
+import { Navigate } from "react-router-dom";
 const EditHighlightsPage = () => {
+    const { isAuthenticated, loading } = useContext(AuthContext); // Use AuthContext to check authentication status
     const [highlights, setHighlights] = useState([]);
     const [editingHighlightId, setEditingHighlightId] = useState(null);
     const [editData, setEditData] = useState({ youtubeUrl: "", gameDate: "", description: "" });
     const [editErrors, setEditErrors] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [loadingHighlights, setLoading] = useState(true);
     useEffect(() => {
-        const fetchHighlights = async () => {
-            try {
-                const res = await axios.get("/api/videos");
-                setHighlights(res.data);
-            }
-            catch (err) {
-                console.error("Failed to load highlights", err);
-                setHighlights([]);
-            }
-            finally {
-                setLoading(false);
-            }
-        };
-        fetchHighlights();
-    }, []);
+        if (isAuthenticated) {
+            const fetchHighlights = async () => {
+                try {
+                    const res = await axios.get("/api/videos");
+                    setHighlights(res.data);
+                }
+                catch (err) {
+                    console.error("Failed to load highlights", err);
+                    setHighlights([]);
+                }
+                finally {
+                    setLoading(false);
+                }
+            };
+            fetchHighlights();
+        }
+    }, [isAuthenticated]); // Re-fetch when authentication status changes
+    if (loading) {
+        return _jsx("p", { className: "text-center my-5 text-primary", children: "Loading highlights..." });
+    }
+    if (loadingHighlights) {
+        return _jsx("p", { className: "text-center my-5 text-primary", children: "Loading highlights..." });
+    }
+    if (!isAuthenticated) {
+        return _jsx(Navigate, { to: "/login" }); // Redirect if not authenticated
+    }
     const handleEditClick = (h) => {
         setEditingHighlightId(h.highlightId);
         setEditData({
@@ -77,9 +91,6 @@ const EditHighlightsPage = () => {
             console.error("Failed to delete highlight", err);
         }
     };
-    if (loading) {
-        return _jsx("p", { className: "text-center my-5 text-primary", children: "Loading highlights..." });
-    }
     if (!highlights.length) {
         return _jsx("p", { className: "text-center my-5 text-muted fst-italic", children: "No highlights available." });
     }

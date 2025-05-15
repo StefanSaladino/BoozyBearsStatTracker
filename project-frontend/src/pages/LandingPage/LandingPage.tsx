@@ -28,7 +28,7 @@ const LandingPage: React.FC = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobileView(window.innerWidth <= 991);
+      setIsMobileView(window.innerWidth <= 768);
     };
 
     window.addEventListener("resize", handleResize);

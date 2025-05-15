@@ -36,7 +36,6 @@ const AdminDashboard: React.FC = () => {
   }, [isAuthenticated]);
 
   if (loading) {
-    // Optionally, render a loading spinner or placeholder while session is being checked
     return <div>Loading...</div>;
   }
 

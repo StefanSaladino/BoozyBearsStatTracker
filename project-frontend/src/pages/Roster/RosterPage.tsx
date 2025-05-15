@@ -3,6 +3,7 @@ import axios from '../../api';
 import { Link } from 'react-router-dom';
 import '../Roster/RosterPage.css';
 import mainLogo from '../../assets/main-logo.png'
+import Spinner from '../../components/Spinner';
 
 // Type definition for a player
 interface Player {
@@ -106,7 +107,8 @@ function RosterPage() {
     }));
   };
 
-  if (loading) return <p>Loading roster...</p>;
+  if (loading) return <Spinner />
+  ;
 
   return (
     <div className="roster-page">

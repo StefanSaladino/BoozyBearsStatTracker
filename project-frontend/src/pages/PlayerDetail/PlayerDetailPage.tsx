@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../../api';
 import '../PlayerDetail/PlayerDetail.css';
+import Spinner from '../../components/Spinner';
 
 type Highlight = {
   _id: string;
@@ -46,7 +47,7 @@ const PlayerDetailPage: React.FC = () => {
     fetchPlayer();
   }, [id]);
 
-  if (loading) return <div className="text-center mt-5 text-primary">Loading player details...</div>;
+  if (loading) return <Spinner />;
   if (!player) return <div className="text-center mt-5 text-danger">Player not found.</div>;
 
   return (

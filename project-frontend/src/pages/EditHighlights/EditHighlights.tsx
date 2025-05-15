@@ -1,8 +1,10 @@
 // src/pages/EditHighlights/EditHighlightsPage.tsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "../../api";
 import { validateHighlightEditForm } from "../../utils/validateForm";
+import { AuthContext } from "../../context/AuthContext"; // Import the AuthContext
+import { Navigate } from "react-router-dom";
 
 interface Highlight {
   playerId: string;
@@ -14,33 +16,46 @@ interface Highlight {
 }
 
 const EditHighlightsPage: React.FC = () => {
+  const { isAuthenticated, loading } = useContext(AuthContext); // Use AuthContext to check authentication status
   const [highlights, setHighlights] = useState<Highlight[]>([]);
-  const [editingHighlightId, setEditingHighlightId] = useState<string | null>(
-    null
-  );
+  const [editingHighlightId, setEditingHighlightId] = useState<string | null>(null);
   const [editData, setEditData] = useState<{
     youtubeUrl: string;
     gameDate: string;
     description: string;
   }>({ youtubeUrl: "", gameDate: "", description: "" });
   const [editErrors, setEditErrors] = useState<{ [key: string]: string }>({});
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingHighlights, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchHighlights = async () => {
-      try {
-        const res = await axios.get<Highlight[]>("/api/videos");
-        setHighlights(res.data);
-      } catch (err) {
-        console.error("Failed to load highlights", err);
-        setHighlights([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    if (isAuthenticated) {
+      const fetchHighlights = async () => {
+        try {
+          const res = await axios.get<Highlight[]>("/api/videos");
+          setHighlights(res.data);
+        } catch (err) {
+          console.error("Failed to load highlights", err);
+          setHighlights([]);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchHighlights();
-  }, []);
+      fetchHighlights();
+    }
+  }, [isAuthenticated]); // Re-fetch when authentication status changes
+
+  if (loading) {
+    return <p className="text-center my-5 text-primary">Loading highlights...</p>;
+  }
+
+  if (loadingHighlights) {
+    return <p className="text-center my-5 text-primary">Loading highlights...</p>;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />; // Redirect if not authenticated
+  }
 
   const handleEditClick = (h: Highlight) => {
     setEditingHighlightId(h.highlightId);
@@ -106,10 +121,6 @@ const EditHighlightsPage: React.FC = () => {
       console.error("Failed to delete highlight", err);
     }
   };
-
-  if (loading) {
-    return <p className="text-center my-5 text-primary">Loading highlights...</p>;
-  }
 
   if (!highlights.length) {
     return <p className="text-center my-5 text-muted fst-italic">No highlights available.</p>;

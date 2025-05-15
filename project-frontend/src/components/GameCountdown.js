@@ -20,7 +20,7 @@ const GameCountdown = () => {
             const gameTime = new Date(nextGame.date);
             const diff = gameTime.getTime() - now.getTime();
             if (diff <= 0) {
-                findNextGame();
+                findNextGame(); // refresh for next game
                 return;
             }
             setIsClose(diff <= 24 * 60 * 60 * 1000); // less than 24 hours
@@ -35,8 +35,8 @@ const GameCountdown = () => {
         return () => clearInterval(interval);
     }, [nextGame]);
     if (!nextGame) {
-        return _jsx("div", { className: "countdown-container", children: "No upcoming games!" });
+        return (_jsx("div", { className: "countdown-wrapper", children: _jsx("div", { className: "countdown-container", children: _jsx("h2", { children: "No Games Scheduled" }) }) }));
     }
-    return (_jsx("div", { className: 'countdown-wrapper', children: _jsxs("div", { className: `countdown-container ${isClose ? 'hype-mode' : ''}`, children: [_jsx("h2", { children: "Next Game:" }), _jsxs("p", { className: "opponent", children: [_jsx("span", { className: 'text-success fw-bold fs-1', children: "Boozy Bears" }), " VS. ", _jsx("span", { className: 'text-danger fw-bold fs-1', children: nextGame.opponent })] }), _jsx("p", { className: "time-left slide-in", children: timeLeft }, timeLeft)] }) }));
+    return (_jsx("div", { className: 'countdown-wrapper', children: _jsxs("div", { className: `countdown-container ${isClose ? 'hype-mode' : ''}`, children: [_jsx("h2", { children: "Next Game:" }), _jsxs("p", { className: "opponent", children: [_jsx("span", { className: 'text-success fw-bold fs-1', children: "Boozy Bears" }), " VS.", ' ', _jsx("span", { className: 'text-danger fw-bold fs-1', children: nextGame.opponent })] }), _jsx("p", { className: "time-left slide-in", children: timeLeft }, timeLeft)] }) }));
 };
 export default GameCountdown;

@@ -1,5 +1,11 @@
 /* RosterPage.css */
 
+.spinner{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .roster-page {
   padding: 2rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

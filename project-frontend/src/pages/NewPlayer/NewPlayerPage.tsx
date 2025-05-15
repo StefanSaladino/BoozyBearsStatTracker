@@ -1,10 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../../api";
 import { validatePlayerForm } from "../../utils/validateForm";
-import  ToastNotification from "../../components/ToastComponent";
+import ToastNotification from "../../components/ToastComponent";
+import { AuthContext } from "../../context/AuthContext";
 
 const NewPlayerPage: React.FC = () => {
+  const { isAuthenticated, loading } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/login");
+    }
+  }, [loading, isAuthenticated, navigate]);
+
   const [name, setName] = useState("");
   const [jerseyNumber, setJerseyNumber] = useState<number>(0);
   const [position, setPosition] = useState<"Skater" | "Goalie">("Skater");
@@ -15,7 +25,6 @@ const NewPlayerPage: React.FC = () => {
   const [goalsAgainstAverage, setGoalsAgainstAverage] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showToast, setShowToast] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,12 +63,14 @@ const NewPlayerPage: React.FC = () => {
 
     try {
       await axios.post("/players", payload);
-      setShowToast(true); // ✅ show success toast
+      setShowToast(true);
       setTimeout(() => navigate("/admin-dashboard"), 2000);
     } catch (err) {
       console.error("Error creating player:", err);
     }
   };
+
+  if (loading) return null; // Optional: or show a spinner
 
   return (
     <div className="container mt-5 mb-5">
@@ -168,9 +179,7 @@ const NewPlayerPage: React.FC = () => {
                   <input
                     type="number"
                     step="0.01"
-                    className={`form-control ${
-                      errors.goalsAgainstAverage ? "is-invalid" : ""
-                    }`}
+                    className={`form-control ${errors.goalsAgainstAverage ? "is-invalid" : ""}`}
                     value={goalsAgainstAverage}
                     onChange={(e) => setGoalsAgainstAverage(Number(e.target.value))}
                   />

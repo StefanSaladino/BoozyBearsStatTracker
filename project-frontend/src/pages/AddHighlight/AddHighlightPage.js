@@ -1,12 +1,14 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-// src/pages/AddHighlight/AddHighlightPage.tsx
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import axios from "../../api";
 import { validateHighlightForm } from "../../utils/validateForm";
 import ToastNotification from "../../components/ToastComponent";
+import { AuthContext } from "../../context/AuthContext";
+import Spinner from "../../components/Spinner";
 const AddHighlightPage = () => {
     const { playerId } = useParams();
+    const { isAuthenticated, loading } = useContext(AuthContext); // Get auth context values
     const [players, setPlayers] = useState([]);
     const [selectedPlayer, setSelectedPlayer] = useState(playerId || "");
     const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -15,13 +17,23 @@ const AddHighlightPage = () => {
     const [errors, setErrors] = useState({});
     const [showToast, setShowToast] = useState(false);
     const navigate = useNavigate();
-    // load players list for dropdown
+    // Wait for authentication check
     useEffect(() => {
-        axios
-            .get("/players")
-            .then((res) => setPlayers(res.data))
-            .catch((err) => console.error("Failed to load players:", err));
-    }, []);
+        if (isAuthenticated) {
+            axios
+                .get("/players")
+                .then((res) => setPlayers(res.data))
+                .catch((err) => console.error("Failed to load players:", err));
+        }
+    }, [isAuthenticated]);
+    // Loading state
+    if (loading) {
+        return _jsx(Spinner, {});
+    }
+    // Redirect to login if not authenticated
+    if (!isAuthenticated) {
+        return _jsx(Navigate, { to: "/login" });
+    }
     const handleSubmit = async (e) => {
         e.preventDefault();
         // validate against new signature

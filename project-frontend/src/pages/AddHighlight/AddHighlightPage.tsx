@@ -1,10 +1,10 @@
-// src/pages/AddHighlight/AddHighlightPage.tsx
-
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import axios from "../../api";
 import { validateHighlightForm } from "../../utils/validateForm";
 import ToastNotification from "../../components/ToastComponent";
+import { AuthContext } from "../../context/AuthContext";
+import Spinner from "../../components/Spinner";
 
 interface PlayerOption {
   _id: string;
@@ -13,6 +13,7 @@ interface PlayerOption {
 
 const AddHighlightPage: React.FC = () => {
   const { playerId } = useParams<{ playerId: string }>();
+  const { isAuthenticated, loading } = useContext(AuthContext); // Get auth context values
   const [players, setPlayers] = useState<PlayerOption[]>([]);
   const [selectedPlayer, setSelectedPlayer] = useState(playerId || "");
   const [youtubeUrl, setYoutubeUrl] = useState("");
@@ -22,13 +23,25 @@ const AddHighlightPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
 
-  // load players list for dropdown
+  // Wait for authentication check
   useEffect(() => {
-    axios
-      .get<PlayerOption[]>("/players")
-      .then((res) => setPlayers(res.data))
-      .catch((err) => console.error("Failed to load players:", err));
-  }, []);
+    if (isAuthenticated) {
+      axios
+        .get<PlayerOption[]>("/players")
+        .then((res) => setPlayers(res.data))
+        .catch((err) => console.error("Failed to load players:", err));
+    }
+  }, [isAuthenticated]);
+
+  // Loading state
+  if (loading) {
+    return <Spinner />;
+  }
+
+  // Redirect to login if not authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,9 +83,7 @@ const AddHighlightPage: React.FC = () => {
             <div className="col-md-6 mb-3">
               <label className="form-label">Player</label>
               <select
-                className={`form-select ${
-                  errors.selectedPlayer ? "is-invalid" : ""
-                }`}
+                className={`form-select ${errors.selectedPlayer ? "is-invalid" : ""}`}
                 value={selectedPlayer}
                 onChange={(e) => setSelectedPlayer(e.target.value)}
               >
@@ -84,9 +95,7 @@ const AddHighlightPage: React.FC = () => {
                 ))}
               </select>
               {errors.selectedPlayer && (
-                <div className="invalid-feedback">
-                  {errors.selectedPlayer}
-                </div>
+                <div className="invalid-feedback">{errors.selectedPlayer}</div>
               )}
             </div>
 
@@ -110,9 +119,7 @@ const AddHighlightPage: React.FC = () => {
               <label className="form-label">Description</label>
               <input
                 type="text"
-                className={`form-control ${
-                  errors.description ? "is-invalid" : ""
-                }`}
+                className={`form-control ${errors.description ? "is-invalid" : ""}`}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
